@@ -94,7 +94,13 @@ namespace Web
             app.UseSwagger();
             app.UseSwaggerUi("swagger/ui/index");
 
-            app.UseMvc();
+            app.UseMvc(routes =>
+            {
+                routes.MapRoute(
+                    name: "default",
+                    template: "{controller=Home}/{action=Index}/{id?}");
+                
+            });
 
 
             var serviceMonitoringTimer = app.ApplicationServices.GetService<ServiceMonitoringTimer>();
