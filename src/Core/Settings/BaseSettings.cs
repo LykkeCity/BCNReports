@@ -15,5 +15,7 @@ namespace Core.Settings
 
         [Required]
         public string SharedConnString { get; set; }
+        [Required]
+        public string LogsConnString { get; set; }
     }
 }
