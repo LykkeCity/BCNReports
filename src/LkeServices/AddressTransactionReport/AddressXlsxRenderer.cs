@@ -7,9 +7,9 @@ namespace LkeServices.AddressTransactionReport
 {
     public class AddressXlsxRenderer:IAddressXlsxRenderer
     {
-        public Task<Stream> RenderTransactionReport(IXlsxTransactionsReportData data)
+        public async Task<Stream> RenderTransactionReport(IXlsxTransactionsReportData data)
         {
-            throw new NotImplementedException();
+            return Stream.Null;
         }
     }
 }

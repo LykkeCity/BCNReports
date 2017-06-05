@@ -23,6 +23,14 @@ namespace Core.AddressTransactionReport
         string ColouredAssetName { get; }
 
         double ColouredAssetValue { get; }
+
+        CoinType CoinType { get; }
+    }
+
+    public enum CoinType
+    {
+        Input,
+        Output
     }
 
     public interface IAddressXlsxRenderer
