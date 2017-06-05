@@ -47,7 +47,7 @@ namespace Web.Binders
             ioc.RegisterInstance(log);
             ioc.RegisterInstance(settings);
 
-            ioc.BindCommonServices();
+            ioc.BindCommonServices(settings);
             ioc.BindAzure(settings, log);
 
             ioc.RegisterSource(new AnyConcreteTypeNotAlreadyRegisteredSource());

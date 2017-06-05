@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Core.Asset;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Web.Controllers
@@ -9,10 +10,18 @@ namespace Web.Controllers
     [Route("api/[controller]")]
     public class ValuesController : Controller
     {
+        private readonly IAssetDefinitionService _assetDefinitionService;
+
+        public ValuesController(IAssetDefinitionService assetDefinitionService)
+        {
+            _assetDefinitionService = assetDefinitionService;
+        }
+
         // GET api/values
         [HttpGet]
-        public IEnumerable<string> Get()
+        public async Task<IEnumerable<string>> Get()
         {
+            var t =await _assetDefinitionService.GetAssetDefinitionsAsync();
             return new string[] { "value1", "value2" };
         }
 
