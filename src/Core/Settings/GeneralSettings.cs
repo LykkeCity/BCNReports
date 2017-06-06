@@ -6,6 +6,6 @@ namespace Core.Settings
 {
     public class GeneralSettings
     {
-        public BaseSettings IssuerPortal { get; set; }
+        public BaseSettings BcnReports { get; set; }
     }
 }
