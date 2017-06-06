@@ -126,7 +126,7 @@ namespace LkeServices.AddressTransactionReport
         private readonly QBitNinjaClient _qBitNinjaClient;
         private readonly IAssetDefinitionService _assetDefinitionService;
         private readonly BaseSettings _baseSettings;
-        private static readonly SemaphoreSlim GlobalSemaphore = new SemaphoreSlim(5);
+        private readonly SemaphoreSlim _globalSemaphore;
 
         public AddressXlsxService(IAddressXlsxRenderer addressXlsxRenderer, 
             QBitNinjaClient qBitNinjaClient, IAssetDefinitionService assetDefinitionService, BaseSettings baseSettings)
@@ -135,6 +135,8 @@ namespace LkeServices.AddressTransactionReport
             _qBitNinjaClient = qBitNinjaClient;
             _assetDefinitionService = assetDefinitionService;
             _baseSettings = baseSettings;
+
+            _globalSemaphore = new SemaphoreSlim(baseSettings.NinjaTransactionsMaxConcurrentRequest);
         }
 
         public async Task<Stream> GetTransactionsReport(string addressId)
@@ -150,7 +152,7 @@ namespace LkeServices.AddressTransactionReport
 
             foreach (var txId in ninjaBalanceResp.Result.Operations.Select(p => p.TransactionId))
             {
-                await GlobalSemaphore.WaitAsync();
+                await _globalSemaphore.WaitAsync();
                 var tsk = _qBitNinjaClient.GetTransaction(txId)
                     .ContinueWith(p =>
                     {
@@ -161,7 +163,7 @@ namespace LkeServices.AddressTransactionReport
                         }
                         finally
                         {
-                            GlobalSemaphore.Release(1);
+                            _globalSemaphore.Release(1);
                         }
                     });
 
