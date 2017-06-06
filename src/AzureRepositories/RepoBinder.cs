@@ -1,9 +1,15 @@
 ﻿using Autofac;
+using AzureRepositories.AlertNotifications;
 using AzureRepositories.ServiceMonitoring;
+using AzureStorage.Queue;
 using AzureStorage.Tables;
 using Common.Log;
+using Core.AlertNotifications;
+using Core.Queue;
 using Core.ServiceMonitoring;
 using Core.Settings;
+using LkeServices.ReportsCommands;
+using Lykke.JobTriggers.Abstractions;
 
 namespace AzureRepositories
 {
@@ -26,7 +32,16 @@ namespace AzureRepositories
 
         private static void BindQueue(this ContainerBuilder ioc, BaseSettings settings)
         {
-            
+            ioc.Register(p => new SlackNotificationsProducer(
+                    new AzureQueueExt(settings.Db.SharedConnString, QueueNames.SlackNotifications)))
+                .As<ISlackNotificationsProducer>();
+
+            ioc.Register(p => new SlackNotificationsProducer(
+                    new AzureQueueExt(settings.Db.SharedConnString, QueueNames.SlackNotifications)))
+                .As<IPoisionQueueNotifier>();
+
+            ioc.Register(p => new ReportCommandProducer(new AzureQueueExt(settings.Db.DataConnString, QueueNames.AddressTransactionsReport)))
+                .As<IReportCommandProducer>();
         }
     }
 }

@@ -26,7 +26,7 @@ namespace BackGroundJobs.QueueHandlers
             _emailSenderProducer = emailSenderProducer;
         }
 
-        [QueueTrigger(QueueNames.AddressTransactionsReport)]
+        [QueueTrigger(QueueNames.AddressTransactionsReport, notify:true)]
         public async Task CreateReport(AddressTransactionReportQueueCommand command)
         {
             var reportDate = DateTime.UtcNow;
@@ -34,7 +34,7 @@ namespace BackGroundJobs.QueueHandlers
             var reportData = await _addressXlsxService.GetTransactionsReport(command.Address);
 
             var emailMes = new EmailMessage
-            {
+            { 
                 Subject = $"Report for {command.Address} at {reportDate:f}",
                 Body = $"Report for {command.Address} at {reportDate:f}",
                 Attachments = new[]

@@ -7,10 +7,17 @@
   <ItemGroup>
     <PackageReference Include="Lykke.AzureStorage" Version="1.2.22" />
     <PackageReference Include="Lykke.Common" Version="1.1.69" />
+    <PackageReference Include="Lykke.JobTriggers" Version="1.1.6" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Core\Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Lykke.JobTriggers">
+      <HintPath>..\..\..\..\..\Users\avolkov\.nuget\packages\lykke.jobtriggers\1.1.6\lib\netcoreapp1.1\Lykke.JobTriggers.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>

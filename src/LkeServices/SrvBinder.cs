@@ -22,8 +22,7 @@ namespace LkeServices
             ioc.RegisterType<AddressXlsxRenderer>().As<IAddressXlsxRenderer>();
             ioc.RegisterType<AddressXlsxService>().As<IAddressXlsxService>().SingleInstance();
 
-            ioc.Register(p => new ReportCommandProducer(new AzureQueueExt(settings.Db.DataConnString, QueueNames.AddressTransactionsReport)))
-                .As<IReportCommandProducer>();
+
 
 
             ioc.Register(p => new EmailSenderProducer(settings.ServiceBusEmailSettings,  log)).AsSelf();
