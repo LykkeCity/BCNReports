@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Lykke.EmailSenderProducer.Interfaces;
 
 namespace Core.Settings
 {
@@ -15,6 +16,9 @@ namespace Core.Settings
 
         [Required]
         public string BlockChainExplolerUrl { get; set; }
+
+        [Required]
+        public ServiceBusEmailSettings ServiceBusEmailSettings { get; set; }
     }
 
     public class DbSettings
@@ -26,5 +30,17 @@ namespace Core.Settings
         public string SharedConnString { get; set; }
         [Required]
         public string LogsConnString { get; set; }
+    }
+
+    public class ServiceBusEmailSettings: IServiceBusEmailSettings
+    {
+        [Required]
+        public string NamespaceUrl { get; set; }
+        [Required]
+        public string PolicyName { get; set; }
+        [Required]
+        public string Key { get; set; }
+        [Required]
+        public string QueueName { get; set; }
     }
 }

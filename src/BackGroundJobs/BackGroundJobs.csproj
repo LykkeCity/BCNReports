@@ -12,6 +12,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Lykke.EmailSenderProducer" Version="1.0.4" />
     <PackageReference Include="Lykke.JobTriggers" Version="1.1.6" />
   </ItemGroup>
 

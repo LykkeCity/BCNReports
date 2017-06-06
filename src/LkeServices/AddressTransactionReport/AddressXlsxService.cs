@@ -174,7 +174,7 @@ namespace LkeServices.AddressTransactionReport
                 txResps, 
                 assetDefinitionDictionary.Result,
                 _baseSettings.UsedNetwork());
-
+            
             return await _addressXlsxRenderer.RenderTransactionReport(xlsxData);
         }
     }

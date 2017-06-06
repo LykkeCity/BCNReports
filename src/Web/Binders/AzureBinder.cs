@@ -44,7 +44,7 @@ namespace Web.Binders
             ioc.RegisterInstance(log);
             ioc.RegisterInstance(settings);
 
-            ioc.BindCommonServices(settings);
+            ioc.BindCommonServices(settings, log);
             ioc.BindAzure(settings, log);
             ioc.BindAzure(settings, log);
             ioc.BindBackgroundJobs(settings, log);
