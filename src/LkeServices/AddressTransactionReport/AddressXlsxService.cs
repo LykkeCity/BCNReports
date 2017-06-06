@@ -136,7 +136,7 @@ namespace LkeServices.AddressTransactionReport
             _assetDefinitionService = assetDefinitionService;
             _baseSettings = baseSettings;
 
-            _globalSemaphore = new SemaphoreSlim(baseSettings.NinjaTransactionsMaxConcurrentRequest);
+            _globalSemaphore = new SemaphoreSlim(baseSettings.NinjaTransactionsMaxConcurrentRequestCount);
         }
 
         public async Task<Stream> GetTransactionsReport(string addressId)

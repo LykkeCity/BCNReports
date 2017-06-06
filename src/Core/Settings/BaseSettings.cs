@@ -21,7 +21,7 @@ namespace Core.Settings
         public ServiceBusEmailSettings ServiceBusEmailSettings { get; set; }
 
         [Required]
-        public int NinjaTransactionsMaxConcurrentRequest { get; set; }
+        public int NinjaTransactionsMaxConcurrentRequestCount { get; set; }
     }
 
     public class DbSettings
