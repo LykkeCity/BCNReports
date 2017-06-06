@@ -41,7 +41,7 @@ namespace Web
             var settings = GeneralSettingsReader.ReadGeneralSettingsLocal<BaseSettings>("../../settings.json");
 #else
             var generalSettings = GeneralSettingsReader.ReadGeneralSettings<GeneralSettings>(Configuration.GetConnectionString("Settings"));
-            var settings = generalSettings?.IssuerPortal;
+            var settings = generalSettings?.BcnReports;
 #endif
 
             GeneralSettingsValidator.Validate(settings);
