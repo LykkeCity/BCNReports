@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Core.AddressTransactionReport;
@@ -38,7 +39,19 @@ namespace Web.Controllers
                 return CommandResultBuilder.Fail("Invalid base58 address string.");
             }
 
-            var t = await _addressXlsxService.GetTransactionsReport(input.Address);
+            //todo write command except to generate stream 
+            var str = await _addressXlsxService.GetTransactionsReport(input.Address);
+
+            using (var fileStream = System.IO.File.Create("./test.xlsx"))
+            {
+                str.Seek(0, SeekOrigin.Begin);
+                str.CopyTo(fileStream);
+
+                fileStream.Flush(true);
+            }
+            
+
+        
             return CommandResultBuilder.Ok();
         }
     }

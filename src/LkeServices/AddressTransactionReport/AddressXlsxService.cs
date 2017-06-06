@@ -31,49 +31,56 @@ namespace LkeServices.AddressTransactionReport
             public double ColouredAssetValue { get; set; }
             public CoinType CoinType { get; set; }
 
-            public static IEnumerable<XlsxTransactionInputOutput> Create(string address, GetTransactionResponse source,
+            public static IEnumerable<XlsxTransactionInputOutput> Create(string sourceAddr, GetTransactionResponse source,
                 IDictionary<string, IAssetDefinition> assetDictionary, Network network)
             {
                 var index = 0;
                 foreach (var inOut in source.SpentCoins)
                 {
-                    yield return Create(address, inOut, source.Block.BlockId, source.TransactionId, assetDictionary, index, network, CoinType.Input);
+                    var addr = inOut.TxOut?.ScriptPubKey?.GetDestinationAddress(network)?.ToWif();
+                    
+                    yield return Create(addr, inOut, source.Block.BlockId, source.TransactionId, assetDictionary, index, network, CoinType.Input);
                     index++;
                 }
 
                 index = 0;
                 foreach (var inOut in source.ReceivedCoins)
                 {
-                    yield return Create(address, inOut, source.Block.BlockId, source.TransactionId, assetDictionary, index, network, CoinType.Output);
+                    var addr = inOut.TxOut?.ScriptPubKey?.GetDestinationAddress(network)?.ToWif();
+
+                    yield return Create(addr, inOut, source.Block.BlockId, source.TransactionId, assetDictionary, index, network, CoinType.Output);
                     index++;
                 }
+
+                yield return CreateFees(sourceAddr, source.Fees, source.Block.BlockId, source.TransactionId, index);
 
             }
 
 
-            private static XlsxTransactionInputOutput Create(string address, ICoin source, uint256 blockId, uint256 transactionHash,
+            private static XlsxTransactionInputOutput Create(string sourceAddr, ICoin source, uint256 blockId, uint256 transactionHash,
                 IDictionary<string, IAssetDefinition> assetDictionary, int index, Network network, CoinType coinType)
             {
-
                 var result = new XlsxTransactionInputOutput
                 {
-                    Address = address,
+                    Address = sourceAddr,
                     BlockHash = blockId.ToString(),
                     TransactionHash = transactionHash.ToString(),
                     Index = index,
-                    CoinType = coinType
+                    CoinType = coinType,
                 };
 
                 var colored = source as ColoredCoin;
                 if (colored != null)
                 {
-                    result.ColouredAssetValue = colored.Amount.Quantity;
-                    result.BtcValue = BitcoinUtils.SatoshiToBtc(colored.Bearer.Amount.Satoshi);
-                    
-
                     var assetId = colored.AssetId.GetWif(network).ToString();
 
-                    result.ColouredAssetName = assetDictionary.ContainsKey(assetId) ? assetDictionary[assetId].Name : assetId;
+                    var asset = assetDictionary.ContainsKey(assetId) ? assetDictionary[assetId] : null;
+                    var divisibility = asset?.Divisibility ?? 0;
+
+                    result.ColouredAssetValue = BitcoinUtils.CalculateColoredAssetQuantity(colored.Amount.Quantity, divisibility);
+                    result.BtcValue = BitcoinUtils.SatoshiToBtc(colored.Bearer.Amount.Satoshi);
+                    
+                    result.ColouredAssetName = asset!= null ? asset.Name : assetId;
                 }
 
                 var uncolored = source as Coin;
@@ -84,6 +91,19 @@ namespace LkeServices.AddressTransactionReport
                 }
 
                 return result;
+            }
+
+            private static XlsxTransactionInputOutput CreateFees(string address, Money fees, uint256 blockId, uint256 transactionHash,int index )
+            {
+                return new XlsxTransactionInputOutput
+                {
+                    Address = address,
+                    BlockHash = blockId.ToString(),
+                    TransactionHash = transactionHash.ToString(),
+                    Index = index,
+                    CoinType = CoinType.Fees,
+                    BtcValue = BitcoinUtils.SatoshiToBtc(fees.Satoshi)
+                };
             }
         }
 

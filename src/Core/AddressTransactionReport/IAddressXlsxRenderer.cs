@@ -30,7 +30,8 @@ namespace Core.AddressTransactionReport
     public enum CoinType
     {
         Input,
-        Output
+        Output,
+        Fees
     }
 
     public interface IAddressXlsxRenderer
