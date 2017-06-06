@@ -1,19 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using AzureRepositories.Settings;
 using AzureRepositories.Settings.Validation;
+using BackGroundJobs.TimerFunctions;
 using Core.Settings;
+using Lykke.JobTriggers.Triggers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Swashbuckle.Swagger.Model;
-using Web.BackGround;
 using Web.Binders;
 
 namespace Web
@@ -21,6 +23,7 @@ namespace Web
     public class Startup
     {
         public IContainer ApplicationContainer { get; set; }
+        public IServiceProvider ServiceProvider { get; set; }
 
         public Startup(IHostingEnvironment env)
         {
@@ -73,14 +76,14 @@ namespace Web
 
 
             ApplicationContainer = builder.Build();
+            ServiceProvider = new AutofacServiceProvider(ApplicationContainer);
 
-            return new AutofacServiceProvider(ApplicationContainer);
+            return ServiceProvider;
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, IApplicationLifetime appLifetime)
         {
-            var settings = GetSettings();
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
 
@@ -103,17 +106,18 @@ namespace Web
             });
 
 
-            var serviceMonitoringTimer = app.ApplicationServices.GetService<ServiceMonitoringTimer>();
-
+            var triggerHost = new TriggerHost(ServiceProvider);
+            triggerHost.ProvideAssembly(typeof(MonitoringFunctions).GetTypeInfo().Assembly);
+            
             appLifetime.ApplicationStarted.Register(() =>
                 {
-                    serviceMonitoringTimer.Start();
+                    triggerHost.Start().Wait();
                 }
             );
 
             appLifetime.ApplicationStopping.Register(() =>
                 {
-                    serviceMonitoringTimer.Stop();
+                    triggerHost.Cancel();
                 }
             );
         }

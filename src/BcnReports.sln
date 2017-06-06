@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AzureRepositories", "AzureR
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LkeServices", "LkeServices\LkeServices.csproj", "{D3524DF5-9F21-417B-AAB1-51C55AE89837}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BackGroundJobs", "BackGroundJobs\BackGroundJobs.csproj", "{CFAACCC3-7FEE-4256-96F9-CEAE6D6F55CF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{D3524DF5-9F21-417B-AAB1-51C55AE89837}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D3524DF5-9F21-417B-AAB1-51C55AE89837}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D3524DF5-9F21-417B-AAB1-51C55AE89837}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CFAACCC3-7FEE-4256-96F9-CEAE6D6F55CF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CFAACCC3-7FEE-4256-96F9-CEAE6D6F55CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CFAACCC3-7FEE-4256-96F9-CEAE6D6F55CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CFAACCC3-7FEE-4256-96F9-CEAE6D6F55CF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

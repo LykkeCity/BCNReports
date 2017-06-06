@@ -4,11 +4,11 @@ using Autofac.Features.ResolveAnything;
 using AzureRepositories;
 using AzureRepositories.Log;
 using AzureStorage.Tables;
+using BackGroundJobs.Bindning;
 using Common;
 using Common.Log;
 using Core.Settings;
 using LkeServices;
-using Web.BackGround;
 
 namespace Web.Binders
 {
@@ -27,10 +27,7 @@ namespace Web.Binders
 
             ioc.RegisterInstance(consoleWriter).As<IConsole>();
 
-
-            ioc.RegisterType<ServiceMonitoringTimer>()
-                .AsSelf();
-
+            
             InitContainer(ioc, settings, log);
 
             return ioc;
@@ -49,6 +46,8 @@ namespace Web.Binders
 
             ioc.BindCommonServices(settings);
             ioc.BindAzure(settings, log);
+            ioc.BindAzure(settings, log);
+            ioc.BindBackgroundJobs(settings, log);
 
             ioc.RegisterSource(new AnyConcreteTypeNotAlreadyRegisteredSource());
         }        

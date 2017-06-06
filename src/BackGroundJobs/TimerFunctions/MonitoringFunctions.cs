@@ -1,22 +1,25 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Text;
 using System.Threading.Tasks;
-using Common;
-using Common.Log;
 using Core.ServiceMonitoring;
+using Lykke.JobTriggers.Triggers.Attributes;
 
-namespace Web.BackGround
+namespace BackGroundJobs.TimerFunctions
 {
-    public class ServiceMonitoringTimer : TimerPeriod
+    public class MonitoringFunctions
     {
         private readonly IServiceMonitoringRepository _serviceMonitoringRepository;
 
-        private const string ServiceName = "BcnReports";
-        public ServiceMonitoringTimer(IServiceMonitoringRepository serviceMonitoringRepository, ILog log = null) : base(ServiceName, 30000, log)
+        public MonitoringFunctions(IServiceMonitoringRepository serviceMonitoringRepository)
         {
             _serviceMonitoringRepository = serviceMonitoringRepository;
         }
 
-        public override async Task Execute()
+        private const string ServiceName = "BcnReports";
+
+        [TimerTrigger("00:00:30")]
+        public  async Task WriteMonitoringRecord()
         {
             var now = DateTime.UtcNow;
 

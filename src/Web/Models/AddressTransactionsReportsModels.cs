@@ -9,6 +9,10 @@ namespace Web.Models
     public class AddressTransactionsReportsRequest
     {
         [Required]
-        public string Address { get; set; }
+        public string BitcoinAddress { get; set; }
+
+        [Required]
+        [EmailAddress]
+        public string Email { get; set; }
     }
 }
