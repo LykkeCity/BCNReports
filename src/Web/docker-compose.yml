@@ -11,19 +11,7 @@ services:
       mynet:
         aliases:
           - bcnbalance
-
-     image: rabbitmq:3-management
-     hostname: israbbit
-     volumes:
-       - ./definitions.json:/etc/rabbitmq/definitions.json:ro
-       - ./rabbitmq.config:/etc/rabbitmq/rabbitmq.config:ro
-     ports:
-       - "5672:5672"
-       - "15672:15672"
-     networks:
-      mynet:
-        aliases:
-          - israbbit
+   
 
 networks:
   mynet:
