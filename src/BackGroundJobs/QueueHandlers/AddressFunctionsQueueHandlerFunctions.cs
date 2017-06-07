@@ -36,6 +36,7 @@ namespace BackGroundJobs.QueueHandlers
                 var reportDate = DateTime.UtcNow;
 
                 var reportData = await _addressXlsxService.GetTransactionsReport(command.Address);
+                reportData.Position = 0;
 
                 var emailMes = new EmailMessage
                 {
