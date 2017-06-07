@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Common;
 using Common.Log;
 using Core.AddressTransactionReport;
 using Core.Queue;
@@ -29,26 +30,41 @@ namespace BackGroundJobs.QueueHandlers
         [QueueTrigger(QueueNames.AddressTransactionsReport, notify:true)]
         public async Task CreateReport(AddressTransactionReportQueueCommand command)
         {
-            var reportDate = DateTime.UtcNow;
+            try
+            {
+                
+                var reportDate = DateTime.UtcNow;
 
-            var reportData = await _addressXlsxService.GetTransactionsReport(command.Address);
+                var reportData = await _addressXlsxService.GetTransactionsReport(command.Address);
 
-            var emailMes = new EmailMessage
-            { 
-                Subject = $"Report for {command.Address} at {reportDate:f}",
-                Body = $"Report for {command.Address} at {reportDate:f}",
-                Attachments = new[]
+                var emailMes = new EmailMessage
                 {
-                    new EmailAttachment
+                    Subject = $"Report for {command.Address} at {reportDate:f}",
+                    Body = $"Report for {command.Address} at {reportDate:f}",
+                    Attachments = new[]
                     {
-                        ContentType ="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                        FileName = $"{command.Address}.xlsx",
-                        Stream = reportData
+                        new EmailAttachment
+                        {
+                            ContentType ="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                            FileName = $"{command.Address}.xlsx",
+                            Stream = reportData
+                        }
                     }
-                }
-            };
+                };
 
-            await _emailSenderProducer.SendEmailAsync(command.Email, emailMes);
+                await _emailSenderProducer.SendEmailAsync(command.Email, emailMes);
+                await _log.WriteInfoAsync(nameof(AddressFunctionsQueueHandlerFunctions), 
+                    nameof(CreateReport),
+                    command.ToJson(), "Report proceeded");
+            }
+            catch (Exception e)
+            {
+                await _log.WriteFatalErrorAsync(nameof(AddressFunctionsQueueHandlerFunctions), 
+                    nameof(CreateReport),
+                    command.ToJson(), e);
+                throw;
+            }
+
         }
     }
 }

@@ -5,6 +5,8 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using AzureRepositories.Helpers;
+using Common.Log;
 using Core.AddressTransactionReport;
 using Core.Asset;
 using Core.Settings;
@@ -38,8 +40,8 @@ namespace LkeServices.AddressTransactionReport
                 foreach (var inOut in source.SpentCoins)
                 {
                     var addr = inOut.TxOut?.ScriptPubKey?.GetDestinationAddress(network)?.ToWif();
-                    
-                    yield return Create(addr, inOut, source.Block.BlockId, source.TransactionId, assetDictionary, index, network, CoinType.Input);
+
+                    yield return Create(addr, inOut, source.Block?.BlockId, source.TransactionId, assetDictionary, index, network, CoinType.Input);
                     index++;
                 }
 
@@ -48,12 +50,11 @@ namespace LkeServices.AddressTransactionReport
                 {
                     var addr = inOut.TxOut?.ScriptPubKey?.GetDestinationAddress(network)?.ToWif();
 
-                    yield return Create(addr, inOut, source.Block.BlockId, source.TransactionId, assetDictionary, index, network, CoinType.Output);
+                    yield return Create(addr, inOut, source.Block?.BlockId, source.TransactionId, assetDictionary, index, network, CoinType.Output);
                     index++;
                 }
 
-                yield return CreateFees(sourceAddr, source.Fees, source.Block.BlockId, source.TransactionId, index);
-
+                yield return CreateFees(sourceAddr, source.Fees, source.Block?.BlockId, source.TransactionId, index);
             }
 
 
@@ -63,7 +64,7 @@ namespace LkeServices.AddressTransactionReport
                 var result = new XlsxTransactionInputOutput
                 {
                     Address = sourceAddr,
-                    BlockHash = blockId.ToString(),
+                    BlockHash = blockId?.ToString(),
                     TransactionHash = transactionHash.ToString(),
                     Index = index,
                     CoinType = coinType,
@@ -79,8 +80,8 @@ namespace LkeServices.AddressTransactionReport
 
                     result.ColouredAssetValue = BitcoinUtils.CalculateColoredAssetQuantity(colored.Amount.Quantity, divisibility);
                     result.BtcValue = BitcoinUtils.SatoshiToBtc(colored.Bearer.Amount.Satoshi);
-                    
-                    result.ColouredAssetName = asset!= null ? asset.Name : assetId;
+
+                    result.ColouredAssetName = asset != null ? asset.Name : assetId;
                 }
 
                 var uncolored = source as Coin;
@@ -98,7 +99,7 @@ namespace LkeServices.AddressTransactionReport
                 return new XlsxTransactionInputOutput
                 {
                     Address = address,
-                    BlockHash = blockId.ToString(),
+                    BlockHash = blockId?.ToString(),
                     TransactionHash = transactionHash.ToString(),
                     Index = index,
                     CoinType = CoinType.Fees,
@@ -114,7 +115,7 @@ namespace LkeServices.AddressTransactionReport
         {
             return new XlsxTransactionsReportData
             {
-                TransactionInputOutputs = transactions.SelectMany(p => XlsxTransactionInputOutput.Create(address, p, assetDictionary, network))
+                TransactionInputOutputs = transactions.SelectMany(p => XlsxTransactionInputOutput.Create(address, p, assetDictionary, network)).ToList()
             };
         }
 
@@ -127,14 +128,19 @@ namespace LkeServices.AddressTransactionReport
         private readonly IAssetDefinitionService _assetDefinitionService;
         private readonly BaseSettings _baseSettings;
         private readonly SemaphoreSlim _globalSemaphore;
+        private readonly ILog _log;
 
         public AddressXlsxService(IAddressXlsxRenderer addressXlsxRenderer, 
-            QBitNinjaClient qBitNinjaClient, IAssetDefinitionService assetDefinitionService, BaseSettings baseSettings)
+            QBitNinjaClient qBitNinjaClient, 
+            IAssetDefinitionService assetDefinitionService, 
+            BaseSettings baseSettings,
+            ILog log)
         {
             _addressXlsxRenderer = addressXlsxRenderer;
             _qBitNinjaClient = qBitNinjaClient;
             _assetDefinitionService = assetDefinitionService;
             _baseSettings = baseSettings;
+            _log = log;
 
             _globalSemaphore = new SemaphoreSlim(baseSettings.NinjaTransactionsMaxConcurrentRequestCount);
         }
@@ -150,10 +156,15 @@ namespace LkeServices.AddressTransactionReport
 
             var txResps = new ConcurrentBag<GetTransactionResponse>();
 
-            foreach (var txId in ninjaBalanceResp.Result.Operations.Select(p => p.TransactionId))
+            var txIds = ninjaBalanceResp.Result.Operations.Select(p => p.TransactionId).ToList();
+            foreach (var txId in txIds)
             {
                 await _globalSemaphore.WaitAsync();
-                var tsk = _qBitNinjaClient.GetTransaction(txId)
+                var tsk = Retry.Try( () => _qBitNinjaClient.GetTransaction(txId), 
+                    exceptionFilter:p => true, 
+                    tryCount: 10, 
+                    logger: _log, 
+                    secondsToWaitOnFail:5)
                     .ContinueWith(p =>
                     {
                         try
@@ -173,7 +184,7 @@ namespace LkeServices.AddressTransactionReport
             await Task.WhenAll(transactionsTasks);
 
             var xlsxData = XlsxTransactionsReportData.Create(addressId, 
-                txResps, 
+                txResps.OrderBy(p => txIds.IndexOf(p.TransactionId)), 
                 assetDefinitionDictionary.Result,
                 _baseSettings.UsedNetwork());
             

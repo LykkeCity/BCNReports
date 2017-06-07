@@ -43,17 +43,17 @@ namespace LkeServices.AddressTransactionReport
                 const  int firstRow = 6;
                 foreach (var headerKey in config.Keys)
                 {
+
                     var headerCell = ws.Cells[firstRow, columnCounter];
                     headerCell.Value = headerKey;
                     headerCell.Style.Font.Bold = true;
                     var cellBuilder = config[headerKey];
 
                     ws.Cells[firstRow + 1, columnCounter]
-                        .LoadFromCollection(data.TransactionInputOutputs.Select(p => cellBuilder.GetValue(p).ToString()));
+                        .LoadFromCollection(data.TransactionInputOutputs.Select(p => cellBuilder.GetValue(p)));
                     columnCounter++;
                 }
                 
-
                 ws.Cells.AutoFitColumns();
 
                 return new MemoryStream(package.GetAsByteArray()); 
