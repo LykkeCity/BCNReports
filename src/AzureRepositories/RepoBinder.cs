@@ -1,9 +1,12 @@
 ﻿using Autofac;
+using AzureRepositories.AddressTramsactionsReport;
 using AzureRepositories.AlertNotifications;
 using AzureRepositories.ServiceMonitoring;
+using AzureStorage.Blob;
 using AzureStorage.Queue;
 using AzureStorage.Tables;
 using Common.Log;
+using Core.AddressTramsactionsReport;
 using Core.AlertNotifications;
 using Core.Queue;
 using Core.ReportMetadata;
@@ -29,6 +32,9 @@ namespace AzureRepositories
 
             ioc.RegisterInstance(new ReportMetadataRepository(new AzureTableStorage<ReportMetadataEntity>(settings.Db.DataConnString, "ReportMetadata", log)))
                 .As<IReportMetadataRepository>();
+
+            ioc.RegisterInstance(new AddressTransactionsReportRepository(log, new AzureBlobStorage(settings.Db.DataConnString)))
+                .As<IAddressTransactionsReportRepository>();
         }
 
         private static void BindQueue(this ContainerBuilder ioc, BaseSettings settings)
