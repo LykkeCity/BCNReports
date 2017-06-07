@@ -6,6 +6,7 @@ using AzureStorage.Tables;
 using Common.Log;
 using Core.AlertNotifications;
 using Core.Queue;
+using Core.ReportMetadata;
 using Core.ServiceMonitoring;
 using Core.Settings;
 using LkeServices.ReportsCommands;
@@ -23,11 +24,11 @@ namespace AzureRepositories
 
         private static void BindRepo(this ContainerBuilder ioc, BaseSettings settings, ILog log)
         {
-
-
             ioc.RegisterInstance(new ServiceMonitoringRepository(new AzureTableStorage<MonitoringRecordEntity>(settings.Db.SharedConnString, "Monitoring", log)))
                 .As<IServiceMonitoringRepository>();
 
+            ioc.RegisterInstance(new ReportMetadataRepository(new AzureTableStorage<ReportMetadataEntity>(settings.Db.DataConnString, "ReportMetadata", log)))
+                .As<IReportMetadataRepository>();
         }
 
         private static void BindQueue(this ContainerBuilder ioc, BaseSettings settings)

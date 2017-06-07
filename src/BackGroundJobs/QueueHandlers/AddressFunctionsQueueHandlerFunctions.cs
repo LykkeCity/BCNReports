@@ -4,27 +4,29 @@ using Common;
 using Common.Log;
 using Core.AddressTransactionReport;
 using Core.Queue;
-using Core.ServiceMonitoring;
+using Core.ReportMetadata;
 using Lykke.EmailSenderProducer;
 using Lykke.EmailSenderProducer.Models;
 using Lykke.JobTriggers.Triggers.Attributes;
-using OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime;
 
 namespace BackGroundJobs.QueueHandlers
 {
     public class AddressFunctionsQueueHandlerFunctions
     {
         private readonly IAddressXlsxService _addressXlsxService;
+        private readonly IReportMetadataRepository _reportMetadataRepository;
         private readonly ILog _log;
         private readonly EmailSenderProducer _emailSenderProducer;
 
         public AddressFunctionsQueueHandlerFunctions(IAddressXlsxService addressXlsxService, 
             ILog log, 
-            EmailSenderProducer emailSenderProducer)
+            EmailSenderProducer emailSenderProducer, 
+            IReportMetadataRepository reportMetadataRepository)
         {
             _addressXlsxService = addressXlsxService;
             _log = log;
             _emailSenderProducer = emailSenderProducer;
+            _reportMetadataRepository = reportMetadataRepository;
         }
 
         [QueueTrigger(QueueNames.AddressTransactionsReport, notify:true)]
@@ -54,6 +56,8 @@ namespace BackGroundJobs.QueueHandlers
                 };
 
                 await _emailSenderProducer.SendEmailAsync(command.Email, emailMes);
+                await _reportMetadataRepository.SetDone(command.Address, "TODO");
+
                 await _log.WriteInfoAsync(nameof(AddressFunctionsQueueHandlerFunctions), 
                     nameof(CreateReport),
                     command.ToJson(), "Report proceeded");
@@ -63,6 +67,8 @@ namespace BackGroundJobs.QueueHandlers
                 await _log.WriteFatalErrorAsync(nameof(AddressFunctionsQueueHandlerFunctions), 
                     nameof(CreateReport),
                     command.ToJson(), e);
+
+                await _reportMetadataRepository.SetError(command.Address, e.ToString());
                 throw;
             }
 
