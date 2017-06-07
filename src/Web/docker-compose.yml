@@ -1,0 +1,30 @@
+version: '2'
+services:
+  bcnbalance:
+    image: lykkex/bcnbalance:dev
+    container_name: bcnbalance
+    environment:
+      - SettingsUrl=${SettingsUrl}
+    ports:
+      - "5000:5000"
+    networks:
+      mynet:
+        aliases:
+          - bcnbalance
+
+     image: rabbitmq:3-management
+     hostname: israbbit
+     volumes:
+       - ./definitions.json:/etc/rabbitmq/definitions.json:ro
+       - ./rabbitmq.config:/etc/rabbitmq/rabbitmq.config:ro
+     ports:
+       - "5672:5672"
+       - "15672:15672"
+     networks:
+      mynet:
+        aliases:
+          - israbbit
+
+networks:
+  mynet:
+    driver: bridge
