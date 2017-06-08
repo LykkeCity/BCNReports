@@ -49,5 +49,21 @@ namespace Web.Controllers
             
             return CommandResultBuilder.Ok();
         }
+
+        [HttpGet]
+        public async Task<IEnumerable<ReportMetadataViewModel>> GetReports()
+        {
+            var result = await _reportMetadataRepository.GetAll();
+
+            return result.Select(ReportMetadataViewModel.Create);
+        }
+
+        [HttpGet("{address}")]
+        public async Task<ReportMetadataViewModel> GetReport(string address)
+        {
+            var result = await _reportMetadataRepository.Get(address);
+
+            return result != null ? ReportMetadataViewModel.Create(result) : null;
+        }
     }
 }

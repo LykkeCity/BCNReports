@@ -61,7 +61,7 @@ namespace AzureRepositories
                 ReportMetadataEntity.GenerateRowKey(address));
         }
 
-        public async Task<IEnumerable<IReportMetadata>> Get()
+        public async Task<IEnumerable<IReportMetadata>> GetAll()
         {
             return await _storage.GetDataAsync(ReportMetadataEntity.GeneratePartitionKey());
         }

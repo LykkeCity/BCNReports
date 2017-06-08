@@ -53,7 +53,11 @@ namespace BackGroundJobs.QueueHandlers
                     Body = $"Report for {command.Address} at {reportDate:f} - {saveResult.Url}",
                 };
 
-                await _emailSenderProducer.SendEmailAsync(command.Email, emailMes);
+                if (!string.IsNullOrEmpty(command.Email))
+                {
+                    await _emailSenderProducer.SendEmailAsync(command.Email, emailMes);
+                }
+
                 await _reportMetadataRepository.SetDone(command.Address, saveResult.Url);
 
                 await _log.WriteInfoAsync(nameof(AddressFunctionsQueueHandlerFunctions), 

@@ -59,7 +59,7 @@ namespace Core.ReportMetadata
     public interface IReportMetadataRepository
     {
         Task<IReportMetadata> Get(string address);
-        Task<IEnumerable<IReportMetadata>> Get();
+        Task<IEnumerable<IReportMetadata>> GetAll();
         Task InsertOrReplace(IReportMetadata reportMetadata);
         Task SetStatus(string address, ReportStatus status);
         Task SetProcessing(string address);
