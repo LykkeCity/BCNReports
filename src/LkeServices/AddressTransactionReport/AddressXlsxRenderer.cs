@@ -54,7 +54,7 @@ namespace LkeServices.AddressTransactionReport
                     columnCounter++;
                 }
                 
-                ws.Cells.AutoFitColumns();
+                //ws.Cells.AutoFitColumns();
                 var result = new MemoryStream(package.GetAsByteArray());
                 result.Position = 0;
                 return result; 
