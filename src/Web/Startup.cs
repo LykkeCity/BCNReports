@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
@@ -108,10 +109,13 @@ namespace Web
 
             var triggerHost = new TriggerHost(ServiceProvider);
             triggerHost.ProvideAssembly(typeof(MonitoringFunctions).GetTypeInfo().Assembly);
-            
+
             appLifetime.ApplicationStarted.Register(() =>
                 {
-                    triggerHost.Start().Wait();
+                    new Thread(() =>
+                    {
+                        triggerHost.Start().Wait();
+                    }).Start();
                 }
             );
 
