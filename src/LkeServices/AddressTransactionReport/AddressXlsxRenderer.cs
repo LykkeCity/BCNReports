@@ -21,15 +21,15 @@ namespace LkeServices.AddressTransactionReport
 
                 var config = new Dictionary<string, XlsxCellBuilder>
                 {
-                    {"Tx Hash", new XlsxCellBuilder(p => p.TransactionHash) },
+                    {"Tx Hash", new XlsxCellBuilder(p => p.TransactionHash, width: 75) },
 
-                    {"Block No.", new XlsxCellBuilder(p =>p.BlockHash) },
-                    {"Type", new XlsxCellBuilder(p => p.CoinType.ToString()) },
-                    {"No.", new XlsxCellBuilder(p => p.Index) },
-                    {"Address", new XlsxCellBuilder(p => p.Address) },
-                    {"Btc value", new XlsxCellBuilder(p => p.BtcValue.ToStringBtcFormat()) },
-                    {"Coloured Asset", new XlsxCellBuilder(p => p.ColouredAssetName) },
-                    {"Coloured Asset Value", new XlsxCellBuilder(p => p.ColouredAssetValue) }
+                    {"Block No.", new XlsxCellBuilder(p =>p.BlockHash, width: 75) },
+                    {"Type", new XlsxCellBuilder(p => p.CoinType.ToString(), width: 10) },
+                    {"No.", new XlsxCellBuilder(p => p.Index, width: 10) },
+                    {"Address", new XlsxCellBuilder(p => p.Address, width: 75) },
+                    {"Btc value", new XlsxCellBuilder(p => p.BtcValue.ToStringBtcFormat(), width: 50) },
+                    {"Coloured Asset", new XlsxCellBuilder(p => p.ColouredAssetName, width: 50) },
+                    {"Coloured Asset Value", new XlsxCellBuilder(p => p.ColouredAssetValue, width: 50) }
                 };
 
                 var columnCounter = 1;
@@ -49,12 +49,13 @@ namespace LkeServices.AddressTransactionReport
                     headerCell.Style.Font.Bold = true;
                     var cellBuilder = config[headerKey];
 
+                    ws.Column(columnCounter).Width = cellBuilder.Width;
                     ws.Cells[firstRow + 1, columnCounter]
                         .LoadFromCollection(data.TransactionInputOutputs.Select(p => cellBuilder.GetValue(p)));
                     columnCounter++;
                 }
                 
-                //ws.Cells.AutoFitColumns();
+                //ws.Cells.AutoFitColumns(); //not worked in docker... 
                 var result = new MemoryStream(package.GetAsByteArray());
                 result.Position = 0;
                 return result; 
@@ -66,10 +67,12 @@ namespace LkeServices.AddressTransactionReport
         class XlsxCellBuilder
         {
             private readonly Func<IXlsxTransactionInputOutput, object> _valueSelector;
+            
 
-            public XlsxCellBuilder(Func<IXlsxTransactionInputOutput, object> valueSelector)
+            public XlsxCellBuilder(Func<IXlsxTransactionInputOutput, object> valueSelector, double width = 10)
             {
                 _valueSelector = valueSelector;
+                Width = width;
             }
 
             public string GetValue(IXlsxTransactionInputOutput source)
@@ -82,6 +85,8 @@ namespace LkeServices.AddressTransactionReport
 
                 return "";
             }
+
+            public double Width { get; set; }
         }
 
     }
