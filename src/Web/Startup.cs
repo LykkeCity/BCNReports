@@ -37,10 +37,11 @@ namespace Web
 
         private BaseSettings GetSettings()
         {
+            throw new Exception("sras");
 #if DEBUG
             var settings = GeneralSettingsReader.ReadGeneralSettingsLocal<BaseSettings>("../../settings.json");
 #else
-            var generalSettings = GeneralSettingsReader.ReadGeneralSettings<GeneralSettings>(Configuration.GetConnectionString("SettingsUrl"));
+            var generalSettings = GeneralSettingsReader.ReadGeneralSettings<GeneralSettings>(Configuration["SettingsUrl"]);
             var settings = generalSettings?.BcnReports;
 #endif
 
