@@ -40,7 +40,7 @@ namespace Web
 #if DEBUG
             var settings = GeneralSettingsReader.ReadGeneralSettingsLocal<BaseSettings>("../../settings.json");
 #else
-            var generalSettings = GeneralSettingsReader.ReadGeneralSettings<GeneralSettings>(Configuration.GetConnectionString("Settings"));
+            var generalSettings = GeneralSettingsReader.ReadGeneralSettings<GeneralSettings>(Configuration.GetConnectionString("SettingsUrl"));
             var settings = generalSettings?.BcnReports;
 #endif
 
