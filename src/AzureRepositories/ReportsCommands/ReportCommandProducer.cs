@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using AzureStorage.Queue;
 using Common;
-using Core;
 using Core.Queue;
 
-namespace LkeServices.ReportsCommands
+namespace AzureRepositories.ReportsCommands
 {
     public class ReportCommandProducer: IReportCommandProducer
     {

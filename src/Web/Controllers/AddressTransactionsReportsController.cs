@@ -44,7 +44,7 @@ namespace Web.Controllers
                 return CommandResultBuilder.Fail("Invalid base58 address string.");
             }
 
-            await _reportMetadataRepository.InsertOrReplace(ReportMetadata.Create(input.BitcoinAddress));
+            await _reportMetadataRepository.InsertOrReplace(ReportMetadata.Create(input.BitcoinAddress, queuedAt: DateTime.UtcNow));
             await _commandProducer.CreateAddressTransactionsReportCommand(input.BitcoinAddress, input.Email);
             
             return CommandResultBuilder.Ok();
@@ -55,7 +55,7 @@ namespace Web.Controllers
         {
             var result = await _reportMetadataRepository.GetAll();
 
-            return result.Select(ReportMetadataViewModel.Create);
+            return result.Select(ReportMetadataViewModel.Create).ToList().OrderByDescending(p => p.QueuedAt);
         }
 
         [HttpGet("{address}")]

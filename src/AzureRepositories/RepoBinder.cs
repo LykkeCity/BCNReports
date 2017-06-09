@@ -1,6 +1,8 @@
 ﻿using Autofac;
 using AzureRepositories.AddressTramsactionsReport;
 using AzureRepositories.AlertNotifications;
+using AzureRepositories.ReportMetadata;
+using AzureRepositories.ReportsCommands;
 using AzureRepositories.ServiceMonitoring;
 using AzureStorage.Blob;
 using AzureStorage.Queue;
@@ -12,7 +14,6 @@ using Core.Queue;
 using Core.ReportMetadata;
 using Core.ServiceMonitoring;
 using Core.Settings;
-using LkeServices.ReportsCommands;
 using Lykke.JobTriggers.Abstractions;
 
 namespace AzureRepositories

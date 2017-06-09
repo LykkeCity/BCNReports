@@ -14,6 +14,7 @@ namespace Core.ReportMetadata
 
         string LastError { get; }
 
+        DateTime QueuedAt { get; }
         DateTime? Started { get; }
 
         DateTime? Finished { get; }
@@ -26,10 +27,12 @@ namespace Core.ReportMetadata
         public ReportStatus Status { get; set; }
         public string Address { get; set; }
         public string LastError { get; set; }
+        public DateTime QueuedAt { get; set; }
         public DateTime? Started { get; set; }
         public DateTime? Finished { get; set; }
 
         public static ReportMetadata Create(string address, 
+            DateTime queuedAt,
             ReportStatus status = ReportStatus.Queued, 
             string fileUrl = null, 
             string lastError = null,
@@ -43,7 +46,8 @@ namespace Core.ReportMetadata
                 FileUrl = fileUrl,
                 LastError = lastError,
                 Finished = finished,
-                Started = started
+                Started = started,
+                QueuedAt = queuedAt
             };
         }
     }

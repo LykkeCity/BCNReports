@@ -7,7 +7,6 @@ using Core.Queue;
 using Core.Settings;
 using LkeServices.AddressTransactionReport;
 using LkeServices.Asset;
-using LkeServices.ReportsCommands;
 using LkeServices.Settings;
 using Lykke.EmailSenderProducer;
 using QBitNinja.Client;

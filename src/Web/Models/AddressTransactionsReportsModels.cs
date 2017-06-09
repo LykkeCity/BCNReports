@@ -27,6 +27,7 @@ namespace Web.Models
 
         public DateTime? Started { get; set; }
         public DateTime? Finished { get; set; }
+        public DateTime QueuedAt { get; set; }
 
         public static ReportMetadataViewModel Create(IReportMetadata source)
         {
@@ -37,7 +38,8 @@ namespace Web.Models
                 Finished = source.Finished,
                 Status = source.Status.ToString(),
                 LastError = source.LastError,
-                Started = source.Started
+                Started = source.Started,
+                QueuedAt = source.QueuedAt
             };
         }
     }

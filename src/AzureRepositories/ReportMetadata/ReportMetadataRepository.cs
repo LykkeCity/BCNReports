@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 using AzureStorage;
 using Core.ReportMetadata;
 using Microsoft.WindowsAzure.Storage.Table;
 
-namespace AzureRepositories
+namespace AzureRepositories.ReportMetadata
 {
     public class ReportMetadataEntity : TableEntity, IReportMetadata
     {
@@ -16,6 +15,7 @@ namespace AzureRepositories
         public string Status { get; set; }
         public string Address { get; set; }
         public string LastError { get; set; }
+        public DateTime QueuedAt { get; set; }
 
         public DateTime? Started { get; set; }
         public DateTime? Finished { get; set; }
@@ -31,7 +31,8 @@ namespace AzureRepositories
                 Started = source.Started,
                 Finished = source.Finished,
                 PartitionKey = GeneratePartitionKey(),
-                RowKey = GenerateRowKey(source.Address)
+                RowKey = GenerateRowKey(source.Address),
+                QueuedAt = source.QueuedAt
             };
         }
 
