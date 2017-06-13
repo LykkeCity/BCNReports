@@ -56,7 +56,7 @@ namespace LkeServices.AddressTransactionReport
                     index++;
                 }
 
-                yield return CreateFees(sourceAddr, source.Fees, source.Block?.BlockId, source.TransactionId, index);
+                yield return CreateFees(source.Fees, source.Block?.BlockId, source.TransactionId, index);
             }
 
 
@@ -96,11 +96,10 @@ namespace LkeServices.AddressTransactionReport
                 return result;
             }
 
-            private static XlsxTransactionInputOutput CreateFees(string address, Money fees, uint256 blockId, uint256 transactionHash,int index )
+            private static XlsxTransactionInputOutput CreateFees(Money fees, uint256 blockId, uint256 transactionHash,int index )
             {
                 return new XlsxTransactionInputOutput
                 {
-                    Address = address,
                     BlockHash = blockId?.ToString(),
                     TransactionHash = transactionHash.ToString(),
                     Index = index,
