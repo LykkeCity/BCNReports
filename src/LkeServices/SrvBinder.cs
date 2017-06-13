@@ -1,6 +1,7 @@
 ﻿using Autofac;
 using AzureStorage.Queue;
 using Common.Log;
+using Core.Address;
 using Core.AddressTransactionReport;
 using Core.Asset;
 using Core.Queue;
@@ -19,9 +20,8 @@ namespace LkeServices
         {
             ioc.RegisterType<AssetDefinitionService>().As<IAssetDefinitionService>();
             ioc.RegisterType<AddressXlsxRenderer>().As<IAddressXlsxRenderer>();
+            ioc.RegisterType<AddressService>().As<IAddressService>();
             ioc.RegisterType<AddressXlsxService>().As<IAddressXlsxService>().SingleInstance();
-
-
 
 
             ioc.Register(p => new EmailSenderProducer(settings.ServiceBusEmailSettings,  log)).AsSelf();

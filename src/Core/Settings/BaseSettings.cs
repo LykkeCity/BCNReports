@@ -22,6 +22,9 @@ namespace Core.Settings
 
         [Required]
         public int NinjaTransactionsMaxConcurrentRequestCount { get; set; }
+
+
+        public int TimeoutMinutesOnGettingNinjaTransactionsList { get; set; } = 5;
     }
 
     public class DbSettings

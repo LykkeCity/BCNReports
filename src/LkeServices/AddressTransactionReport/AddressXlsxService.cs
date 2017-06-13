@@ -3,10 +3,12 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using AzureRepositories.Helpers;
 using Common.Log;
+using Core.Address;
 using Core.AddressTransactionReport;
 using Core.Asset;
 using Core.Settings;
@@ -124,6 +126,7 @@ namespace LkeServices.AddressTransactionReport
     public class AddressXlsxService : IAddressXlsxService
     {
         private readonly IAddressXlsxRenderer _addressXlsxRenderer;
+        private readonly IAddressService _addressService;
         private readonly QBitNinjaClient _qBitNinjaClient;
         private readonly IAssetDefinitionService _assetDefinitionService;
         private readonly BaseSettings _baseSettings;
@@ -134,13 +137,15 @@ namespace LkeServices.AddressTransactionReport
             QBitNinjaClient qBitNinjaClient, 
             IAssetDefinitionService assetDefinitionService, 
             BaseSettings baseSettings,
-            ILog log)
+            ILog log, 
+            IAddressService addressService)
         {
             _addressXlsxRenderer = addressXlsxRenderer;
             _qBitNinjaClient = qBitNinjaClient;
             _assetDefinitionService = assetDefinitionService;
             _baseSettings = baseSettings;
             _log = log;
+            _addressService = addressService;
 
             _globalSemaphore = new SemaphoreSlim(baseSettings.NinjaTransactionsMaxConcurrentRequestCount);
         }
@@ -148,15 +153,15 @@ namespace LkeServices.AddressTransactionReport
         public async Task<Stream> GetTransactionsReport(string addressId)
         {
             var assetDefinitionDictionary = _assetDefinitionService.GetAssetDefinitionsAsync();
-            var ninjaBalanceResp = _qBitNinjaClient.GetBalance(BitcoinAddressHelper.GetAddress(addressId, _baseSettings.UsedNetwork()));
+            var addressTransactionIds = GetAddressTransactions(addressId);
 
-            await Task.WhenAll(assetDefinitionDictionary, ninjaBalanceResp);
+            await Task.WhenAll(assetDefinitionDictionary, addressTransactionIds);
 
             var transactionsTasks = new List<Task>();
 
             var txResps = new ConcurrentBag<GetTransactionResponse>();
 
-            var txIds = ninjaBalanceResp.Result.Operations.Select(p => p.TransactionId).ToList();
+            var txIds = addressTransactionIds.Result.ToList();
             foreach (var txId in txIds)
             {
                 await _globalSemaphore.WaitAsync();
@@ -189,6 +194,12 @@ namespace LkeServices.AddressTransactionReport
                 _baseSettings.UsedNetwork());
             
             return await _addressXlsxRenderer.RenderTransactionReport(xlsxData);
+        }
+
+        private async Task<IEnumerable<uint256>> GetAddressTransactions(string bitcoinAddress)
+        {
+            return (await _addressService.GetTransactionsForAddress(bitcoinAddress)).Select(
+                p => uint256.Parse(p.TransactionId));
         }
     }
 }
