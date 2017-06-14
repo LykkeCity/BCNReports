@@ -152,7 +152,10 @@ namespace LkeServices.AddressTransactionReport
         public async Task<Stream> GetTransactionsReport(string addressId)
         {
             var assetDefinitionDictionary = _assetDefinitionService.GetAssetDefinitionsAsync();
-            var addressTransactionIds = GetAddressTransactions(addressId);
+            var addressTransactionIds = Retry.Try(() => GetAddressTransactions(addressId), 
+                tryCount: 10,
+                secondsToWaitOnFail: 5,
+                logger: _log);
 
             await Task.WhenAll(assetDefinitionDictionary, addressTransactionIds);
 
@@ -165,7 +168,6 @@ namespace LkeServices.AddressTransactionReport
             {
                 await _globalSemaphore.WaitAsync();
                 var tsk = Retry.Try( () => _qBitNinjaClient.GetTransaction(txId), 
-                    exceptionFilter:p => true, 
                     tryCount: 10, 
                     logger: _log, 
                     secondsToWaitOnFail:5)

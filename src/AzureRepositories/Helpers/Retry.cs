@@ -6,9 +6,14 @@ namespace AzureRepositories.Helpers
 {
     public class Retry
     {
-        public static async Task<T> Try<T>(Func<Task<T>> action, Func<Exception, bool> exceptionFilter, int tryCount, ILog logger, int secondsToWaitOnFail = 0)
+        public static async Task<T> Try<T>(Func<Task<T>> action,  int tryCount, Func<Exception, bool> exceptionFilter = null, ILog logger = null, int secondsToWaitOnFail = 0)
         {
             int @try = 0;
+            if (exceptionFilter == null)
+            {
+                exceptionFilter = p => true;
+            }
+
             while (true)
             {
                 try
@@ -20,7 +25,11 @@ namespace AzureRepositories.Helpers
                     @try++;
                     if (!exceptionFilter(ex) || @try >= tryCount)
                         throw;
-                    await logger.WriteErrorAsync("Retry", "Try", null, ex);
+
+                    if (logger != null)
+                    {
+                        await logger.WriteErrorAsync("Retry", "Try", null, ex);
+                    }
                     await Task.Delay(secondsToWaitOnFail * 1000);
                 }
             }
