@@ -51,19 +51,19 @@ namespace Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IEnumerable<ReportMetadataViewModel>> GetReports()
+        public async Task<IEnumerable<AddressReportMetadataViewModel>> GetReports()
         {
             var result = await _addressTransactionsReportMetadataRepository.GetAll();
 
-            return result.Select(ReportMetadataViewModel.Create).ToList().OrderByDescending(p => p.QueuedAt);
+            return result.Select(AddressReportMetadataViewModel.Create).ToList().OrderByDescending(p => p.QueuedAt);
         }
 
         [HttpGet("{address}")]
-        public async Task<ReportMetadataViewModel> GetReport(string address)
+        public async Task<AddressReportMetadataViewModel> GetReport(string address)
         {
             var result = await _addressTransactionsReportMetadataRepository.Get(address);
 
-            return result != null ? ReportMetadataViewModel.Create(result) : null;
+            return result != null ? AddressReportMetadataViewModel.Create(result) : null;
         }
     }
 }

@@ -23,7 +23,7 @@ namespace Web.Models
         public string Email { get; set; }
     }
 
-    public class ReportMetadataViewModel
+    public class AddressReportMetadataViewModel
     {
         public string FileUrl { get; set; }
 
@@ -35,11 +35,38 @@ namespace Web.Models
         public DateTime? Finished { get; set; }
         public DateTime QueuedAt { get; set; }
 
-        public static ReportMetadataViewModel Create(IBaseReportMetadata source)
+        public static AddressReportMetadataViewModel Create(IBaseReportMetadata source)
         {
-            return new ReportMetadataViewModel
+            return new AddressReportMetadataViewModel
             {
                 Address = source.Id,
+                FileUrl = source.FileUrl,
+                Finished = source.Finished,
+                Status = source.Status.ToString(),
+                LastError = source.LastError,
+                Started = source.Started,
+                QueuedAt = source.QueuedAt
+            };
+        }
+    }
+
+    public class AssetReportMetadataViewModel
+    {
+        public string FileUrl { get; set; }
+
+        public string Status { get; set; }
+        public string AssetId { get; set; }
+        public string LastError { get; set; }
+
+        public DateTime? Started { get; set; }
+        public DateTime? Finished { get; set; }
+        public DateTime QueuedAt { get; set; }
+
+        public static AssetReportMetadataViewModel Create(IBaseReportMetadata source)
+        {
+            return new AssetReportMetadataViewModel
+            {
+                AssetId = source.Id,
                 FileUrl = source.FileUrl,
                 Finished = source.Finished,
                 Status = source.Status.ToString(),

@@ -56,19 +56,19 @@ namespace Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IEnumerable<ReportMetadataViewModel>> GetReports()
+        public async Task<IEnumerable<AssetReportMetadataViewModel>> GetReports()
         {
             var result = await _reportMetadataRepository.GetAll();
 
-            return result.Select(ReportMetadataViewModel.Create).ToList().OrderByDescending(p => p.QueuedAt);
+            return result.Select(AssetReportMetadataViewModel.Create).ToList().OrderByDescending(p => p.QueuedAt);
         }
 
         [HttpGet("{assetId}")]
-        public async Task<ReportMetadataViewModel> GetReport(string assetId)
+        public async Task<AssetReportMetadataViewModel> GetReport(string assetId)
         {
             var result = await _reportMetadataRepository.Get(assetId);
 
-            return result != null ? ReportMetadataViewModel.Create(result) : null;
+            return result != null ? AssetReportMetadataViewModel.Create(result) : null;
         }
     }
 }
