@@ -1,17 +1,17 @@
 ﻿using Autofac;
-using AzureRepositories.AddressTramsactionsReport;
 using AzureRepositories.AlertNotifications;
 using AzureRepositories.ReportMetadata;
 using AzureRepositories.ReportsCommands;
+using AzureRepositories.ReportStorage;
 using AzureRepositories.ServiceMonitoring;
 using AzureStorage.Blob;
 using AzureStorage.Queue;
 using AzureStorage.Tables;
 using Common.Log;
-using Core.AddressTramsactionsReport;
 using Core.AlertNotifications;
 using Core.Queue;
 using Core.ReportMetadata;
+using Core.ReportStorage;
 using Core.ServiceMonitoring;
 using Core.Settings;
 using Lykke.JobTriggers.Abstractions;
@@ -31,11 +31,17 @@ namespace AzureRepositories
             ioc.RegisterInstance(new ServiceMonitoringRepository(new AzureTableStorage<MonitoringRecordEntity>(settings.Db.SharedConnString, "Monitoring", log)))
                 .As<IServiceMonitoringRepository>();
 
-            ioc.RegisterInstance(new ReportMetadataRepository(new AzureTableStorage<ReportMetadataEntity>(settings.Db.DataConnString, "ReportMetadata", log)))
-                .As<IReportMetadataRepository>();
+            ioc.RegisterInstance(new AddressTransactionsReportMetadataRepository(new AzureTableStorage<BaseReportMetadataEntity>(settings.Db.DataConnString, "AddressTransactionReportMetadata", log)))
+                .As<IAddressTransactionsReportMetadataRepository>();
+            
+            ioc.RegisterInstance(new AddressTransactionsReportStorage(log, new AzureBlobStorage(settings.Db.DataConnString)))
+                .As<IAddressTransactionsReportStorage>();
 
-            ioc.RegisterInstance(new AddressTransactionsReportRepository(log, new AzureBlobStorage(settings.Db.DataConnString)))
-                .As<IAddressTransactionsReportRepository>();
+            ioc.RegisterInstance(new AssetTransactionsReportMetadataRepository(new AzureTableStorage<BaseReportMetadataEntity>(settings.Db.DataConnString, "AssetTransactionReportMetadata", log)))
+                .As<IAssetTransactionsReportMetadataRepository>();
+
+            ioc.RegisterInstance(new AssetTransactionsReportStorage(log, new AzureBlobStorage(settings.Db.DataConnString)))
+                .As<IAssetTransactionsReportStorage>();
         }
 
         private static void BindQueue(this ContainerBuilder ioc, BaseSettings settings)
@@ -48,8 +54,11 @@ namespace AzureRepositories
                     new AzureQueueExt(settings.Db.SharedConnString, QueueNames.SlackNotifications)))
                 .As<IPoisionQueueNotifier>();
 
-            ioc.Register(p => new ReportCommandProducer(new AzureQueueExt(settings.Db.DataConnString, QueueNames.AddressTransactionsReport)))
-                .As<IReportCommandProducer>();
+            ioc.Register(p => new AddressReportCommandProducer(new AzureQueueExt(settings.Db.DataConnString, QueueNames.AddressTransactionsReport)))
+                .As<IAddressReportCommandProducer>();
+
+            ioc.Register(p => new AssetReportCommandProducer(new AzureQueueExt(settings.Db.DataConnString, QueueNames.AssetTransactionsReport)))
+                .As<IAssetReportCommandProducer>();
         }
     }
 }

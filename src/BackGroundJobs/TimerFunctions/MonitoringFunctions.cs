@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 using Core.ServiceMonitoring;
 using Lykke.JobTriggers.Triggers.Attributes;

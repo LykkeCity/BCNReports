@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
-using Core.AddressTramsactionsReport;
 using Core.ReportMetadata;
 
 namespace Web.Models
@@ -13,6 +9,16 @@ namespace Web.Models
         [Required]
         public string BitcoinAddress { get; set; }
         
+        [EmailAddress]
+        public string Email { get; set; }
+    }
+
+
+    public class AssetTransactionsReportsRequest
+    {
+        [Required]
+        public string Asset { get; set; }
+
         [EmailAddress]
         public string Email { get; set; }
     }
@@ -29,11 +35,11 @@ namespace Web.Models
         public DateTime? Finished { get; set; }
         public DateTime QueuedAt { get; set; }
 
-        public static ReportMetadataViewModel Create(IReportMetadata source)
+        public static ReportMetadataViewModel Create(IBaseReportMetadata source)
         {
             return new ReportMetadataViewModel
             {
-                Address = source.Address,
+                Address = source.Id,
                 FileUrl = source.FileUrl,
                 Finished = source.Finished,
                 Status = source.Status.ToString(),

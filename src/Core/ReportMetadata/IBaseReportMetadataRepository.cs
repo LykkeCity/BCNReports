@@ -4,13 +4,13 @@ using System.Threading.Tasks;
 
 namespace Core.ReportMetadata
 {
-    public interface IReportMetadata
+    public interface IBaseReportMetadata
     {
         string FileUrl { get; }
 
         ReportStatus Status { get; }
 
-        string Address { get; }
+        string Id { get; }
 
         string LastError { get; }
 
@@ -21,27 +21,27 @@ namespace Core.ReportMetadata
 
     }
 
-    public class ReportMetadata:IReportMetadata
+    public class ReportMetadata : IBaseReportMetadata
     {
         public string FileUrl { get; set; }
         public ReportStatus Status { get; set; }
-        public string Address { get; set; }
+        public string Id { get; set; }
         public string LastError { get; set; }
         public DateTime QueuedAt { get; set; }
         public DateTime? Started { get; set; }
         public DateTime? Finished { get; set; }
 
-        public static ReportMetadata Create(string address, 
+        public static ReportMetadata Create(string id,
             DateTime queuedAt,
-            ReportStatus status = ReportStatus.Queued, 
-            string fileUrl = null, 
+            ReportStatus status = ReportStatus.Queued,
+            string fileUrl = null,
             string lastError = null,
             DateTime? started = null,
             DateTime? finished = null)
         {
             return new ReportMetadata
             {
-                Address = address,
+                Id = id,
                 Status = status,
                 FileUrl = fileUrl,
                 LastError = lastError,
@@ -52,6 +52,7 @@ namespace Core.ReportMetadata
         }
     }
 
+
     public enum ReportStatus
     {
         Queued,
@@ -60,14 +61,14 @@ namespace Core.ReportMetadata
         Done
     }
 
-    public interface IReportMetadataRepository
+    public interface IBaseReportMetadataRepository
     {
-        Task<IReportMetadata> Get(string address);
-        Task<IEnumerable<IReportMetadata>> GetAll();
-        Task InsertOrReplace(IReportMetadata reportMetadata);
-        Task SetStatus(string address, ReportStatus status);
-        Task SetProcessing(string address);
-        Task SetDone(string address, string fileUrl);
-        Task SetError(string address, string errorDescr);
+        Task<IBaseReportMetadata> Get(string id);
+        Task<IEnumerable<IBaseReportMetadata>> GetAll();
+        Task InsertOrReplace(IBaseReportMetadata reportMetadata);
+        Task SetStatus(string id, ReportStatus status);
+        Task SetProcessing(string id);
+        Task SetDone(string id, string fileUrl);
+        Task SetError(string id, string errorDescr);
     }
 }

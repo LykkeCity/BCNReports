@@ -5,12 +5,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using Core.AddressTransactionReport;
 using LkeServices.BitcoinHelpers;
-using NBitcoin;
 using OfficeOpenXml;
 
-namespace LkeServices.AddressTransactionReport
+namespace LkeServices.Xlsx
 {
-    public class AddressXlsxRenderer:IAddressXlsxRenderer
+    public class TransactionXlsxRenderer:ITransactionXlsxRenderer
     {
         public async Task<Stream> RenderTransactionReport(IXlsxTransactionsReportData data)
         {
@@ -60,8 +59,6 @@ namespace LkeServices.AddressTransactionReport
                 result.Position = 0;
                 return result; 
             }
-
-            
         }
 
         class XlsxCellBuilder

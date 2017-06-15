@@ -7,31 +7,31 @@ using Microsoft.WindowsAzure.Storage.Table;
 
 namespace AzureRepositories.ReportMetadata
 {
-    public class ReportMetadataEntity : TableEntity, IReportMetadata
+    public class BaseReportMetadataEntity : TableEntity, IBaseReportMetadata
     {
         public string FileUrl { get; set; }
-        ReportStatus IReportMetadata.Status => (ReportStatus)Enum.Parse(typeof(ReportStatus), Status);
+        ReportStatus IBaseReportMetadata.Status => (ReportStatus)Enum.Parse(typeof(ReportStatus), Status);
 
         public string Status { get; set; }
-        public string Address { get; set; }
+        public string Id { get; set; }
         public string LastError { get; set; }
         public DateTime QueuedAt { get; set; }
 
         public DateTime? Started { get; set; }
         public DateTime? Finished { get; set; }
 
-        public static ReportMetadataEntity Create(IReportMetadata source)
+        public static BaseReportMetadataEntity Create(IBaseReportMetadata source)
         {
-            return new ReportMetadataEntity
+            return new BaseReportMetadataEntity
             {
                 Status = source.Status.ToString(),
-                Address = source.Address,
+                Id = source.Id,
                 FileUrl = source.FileUrl,
                 LastError = source.LastError,
                 Started = source.Started,
                 Finished = source.Finished,
                 PartitionKey = GeneratePartitionKey(),
-                RowKey = GenerateRowKey(source.Address),
+                RowKey = GenerateRowKey(source.Id),
                 QueuedAt = source.QueuedAt
             };
         }
@@ -41,41 +41,42 @@ namespace AzureRepositories.ReportMetadata
             return "BCNR";
         }
 
-        public static string GenerateRowKey(string address)
+        public static string GenerateRowKey(string id)
         {
-            return address;
+            return id;
         }
     }
 
-    public class ReportMetadataRepository: IReportMetadataRepository
-    {
-        private readonly INoSQLTableStorage<ReportMetadataEntity> _storage;
 
-        public ReportMetadataRepository(INoSQLTableStorage<ReportMetadataEntity> storage)
+    public abstract class BaseReportMetadataRepository:IBaseReportMetadataRepository
+    {
+        private readonly INoSQLTableStorage<BaseReportMetadataEntity> _storage;
+
+        protected BaseReportMetadataRepository(INoSQLTableStorage<BaseReportMetadataEntity> storage)
         {
             _storage = storage;
         }
 
-        public async Task<IReportMetadata> Get(string address)
+        public async Task<IBaseReportMetadata> Get(string address)
         {
-            return await _storage.GetDataAsync(ReportMetadataEntity.GeneratePartitionKey(),
-                ReportMetadataEntity.GenerateRowKey(address));
+            return await _storage.GetDataAsync(BaseReportMetadataEntity.GeneratePartitionKey(),
+                BaseReportMetadataEntity.GenerateRowKey(address));
         }
 
-        public async Task<IEnumerable<IReportMetadata>> GetAll()
+        public async Task<IEnumerable<IBaseReportMetadata>> GetAll()
         {
-            return await _storage.GetDataAsync(ReportMetadataEntity.GeneratePartitionKey());
+            return await _storage.GetDataAsync(BaseReportMetadataEntity.GeneratePartitionKey());
         }
 
-        public Task InsertOrReplace(IReportMetadata reportMetadata)
+        public Task InsertOrReplace(IBaseReportMetadata reportMetadata)
         {
-            return _storage.InsertOrReplaceAsync(ReportMetadataEntity.Create(reportMetadata));
+            return _storage.InsertOrReplaceAsync(BaseReportMetadataEntity.Create(reportMetadata));
         }
 
         public Task SetStatus(string address, ReportStatus status)
         {
-            return _storage.ReplaceAsync(ReportMetadataEntity.GeneratePartitionKey(),
-                ReportMetadataEntity.GenerateRowKey(address),
+            return _storage.ReplaceAsync(BaseReportMetadataEntity.GeneratePartitionKey(),
+                BaseReportMetadataEntity.GenerateRowKey(address),
                 p =>
                 {
                     p.Status = status.ToString();
@@ -86,8 +87,8 @@ namespace AzureRepositories.ReportMetadata
 
         public Task SetProcessing(string address)
         {
-            return _storage.ReplaceAsync(ReportMetadataEntity.GeneratePartitionKey(),
-                ReportMetadataEntity.GenerateRowKey(address),
+            return _storage.ReplaceAsync(BaseReportMetadataEntity.GeneratePartitionKey(),
+                BaseReportMetadataEntity.GenerateRowKey(address),
                 p =>
                 {
                     p.Status = ReportStatus.Processing.ToString();
@@ -99,8 +100,8 @@ namespace AzureRepositories.ReportMetadata
 
         public Task SetDone(string address, string fileUrl)
         {
-            return _storage.ReplaceAsync(ReportMetadataEntity.GeneratePartitionKey(),
-                ReportMetadataEntity.GenerateRowKey(address),
+            return _storage.ReplaceAsync(BaseReportMetadataEntity.GeneratePartitionKey(),
+                BaseReportMetadataEntity.GenerateRowKey(address),
                 p =>
                 {
                     p.Status = ReportStatus.Done.ToString();
@@ -113,8 +114,8 @@ namespace AzureRepositories.ReportMetadata
 
         public Task SetError(string address, string errorDescr)
         {
-            return _storage.ReplaceAsync(ReportMetadataEntity.GeneratePartitionKey(),
-                ReportMetadataEntity.GenerateRowKey(address),
+            return _storage.ReplaceAsync(BaseReportMetadataEntity.GeneratePartitionKey(),
+                BaseReportMetadataEntity.GenerateRowKey(address),
                 p =>
                 {
                     p.Status = ReportStatus.Failed.ToString();

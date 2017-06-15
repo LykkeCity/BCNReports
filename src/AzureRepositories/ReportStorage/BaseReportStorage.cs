@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
+﻿using System.IO;
 using System.Threading.Tasks;
 using AzureStorage;
 using Common.Log;
-using Core.AddressTramsactionsReport;
+using Core.ReportStorage;
 
-namespace AzureRepositories.AddressTramsactionsReport
+namespace AzureRepositories.ReportStorage
 {
     public class SaveResult : ISaveResult
     {
@@ -32,14 +29,15 @@ namespace AzureRepositories.AddressTramsactionsReport
         }
     }
 
-    public class AddressTransactionsReportRepository: IAddressTransactionsReportRepository
+    public abstract class BaseReportStorage : IBaseReportStorage
     {
-        private const string Container = "address-transaction-reports";
+        private readonly string _container;
         private readonly IBlobStorage _blobStorage;
         private readonly ILog _log;
 
-        public AddressTransactionsReportRepository(ILog log, IBlobStorage blobStorage)
+        protected BaseReportStorage(string container, ILog log, IBlobStorage blobStorage)
         {
+            _container = container;
             _log = log;
             _blobStorage = blobStorage;
         }
@@ -49,9 +47,9 @@ namespace AzureRepositories.AddressTramsactionsReport
             data.Position = 0;
 
             var key = GetKeyName(address);
-            await _blobStorage.SaveBlobAsync(Container, key, data);
+            await _blobStorage.SaveBlobAsync(_container, key, data);
 
-            var url = _blobStorage.GetBlobUrl(Container, key);
+            var url = _blobStorage.GetBlobUrl(_container, key);
             return SaveResult.Ok(url);
         }
 

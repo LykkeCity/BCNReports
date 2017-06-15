@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Core.AddressTransactionReport
 {
-    public interface IAddressXlsxService
+    public interface IAddressTransactionReportService
     {
         Task<Stream> GetTransactionsReport(string addressId);
     }

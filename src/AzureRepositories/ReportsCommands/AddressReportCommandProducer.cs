@@ -5,16 +5,16 @@ using Core.Queue;
 
 namespace AzureRepositories.ReportsCommands
 {
-    public class ReportCommandProducer: IReportCommandProducer
+    public class AddressReportCommandProducer: IAddressReportCommandProducer
     {
         private readonly IQueueExt _queue;
 
-        public ReportCommandProducer(IQueueExt queue)
+        public AddressReportCommandProducer(IQueueExt queue)
         {
             _queue = queue;
         }
 
-        public async Task CreateAddressTransactionsReportCommand(string address, string email)
+        public async Task CreateCommand(string address, string email)
         {
             var msg = new AddressTransactionReportQueueCommand
             {

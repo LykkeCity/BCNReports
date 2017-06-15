@@ -10,9 +10,12 @@ namespace BackGroundJobs.Bindning
 {
     public static class BackgroundBinder
     {
-        public static void BindBackgroundJobs(this ContainerBuilder ioc, BaseSettings settings, ILog log)
+        public static void BindBackgroundJobs(this ContainerBuilder ioc, 
+            BaseSettings settings,
+            ILog log)
         {
-            ioc.RegisterType<AddressFunctionsQueueHandlerFunctions>().AsSelf().SingleInstance();
+            ioc.RegisterType<AddressTransactionsQueueFunctions>().AsSelf().SingleInstance();
+            ioc.RegisterType<AssetTransactionsQueueFunctions>().AsSelf().SingleInstance();
             ioc.RegisterType<MonitoringFunctions>().AsSelf().SingleInstance();
 
             ioc.AddTriggers(pool =>

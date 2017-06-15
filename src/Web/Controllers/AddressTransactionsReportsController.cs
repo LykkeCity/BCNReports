@@ -18,17 +18,17 @@ namespace Web.Controllers
     [Route("api/[controller]")]
     public class AddressTransactionsReportsController:Controller
     {
-        private readonly IReportCommandProducer _commandProducer;
-        private readonly IReportMetadataRepository _reportMetadataRepository;
+        private readonly IAddressReportCommandProducer _commandProducer;
+        private readonly IAddressTransactionsReportMetadataRepository _addressTransactionsReportMetadataRepository;
         private readonly BaseSettings _baseSettings;
 
         public AddressTransactionsReportsController(BaseSettings baseSettings, 
-            IReportCommandProducer commandProducer, 
-            IReportMetadataRepository reportMetadataRepository)
+            IAddressReportCommandProducer commandProducer, 
+            IAddressTransactionsReportMetadataRepository addressTransactionsReportMetadataRepository)
         {
             _baseSettings = baseSettings;
             _commandProducer = commandProducer;
-            _reportMetadataRepository = reportMetadataRepository;
+            _addressTransactionsReportMetadataRepository = addressTransactionsReportMetadataRepository;
         }
 
         [HttpPost]
@@ -44,8 +44,8 @@ namespace Web.Controllers
                 return CommandResultBuilder.Fail("Invalid base58 address string.");
             }
 
-            await _reportMetadataRepository.InsertOrReplace(ReportMetadata.Create(input.BitcoinAddress, queuedAt: DateTime.UtcNow));
-            await _commandProducer.CreateAddressTransactionsReportCommand(input.BitcoinAddress, input.Email);
+            await _addressTransactionsReportMetadataRepository.InsertOrReplace(ReportMetadata.Create(input.BitcoinAddress, queuedAt: DateTime.UtcNow));
+            await _commandProducer.CreateCommand(input.BitcoinAddress, input.Email);
             
             return CommandResultBuilder.Ok();
         }
@@ -53,7 +53,7 @@ namespace Web.Controllers
         [HttpGet]
         public async Task<IEnumerable<ReportMetadataViewModel>> GetReports()
         {
-            var result = await _reportMetadataRepository.GetAll();
+            var result = await _addressTransactionsReportMetadataRepository.GetAll();
 
             return result.Select(ReportMetadataViewModel.Create).ToList().OrderByDescending(p => p.QueuedAt);
         }
@@ -61,7 +61,7 @@ namespace Web.Controllers
         [HttpGet("{address}")]
         public async Task<ReportMetadataViewModel> GetReport(string address)
         {
-            var result = await _reportMetadataRepository.Get(address);
+            var result = await _addressTransactionsReportMetadataRepository.Get(address);
 
             return result != null ? ReportMetadataViewModel.Create(result) : null;
         }

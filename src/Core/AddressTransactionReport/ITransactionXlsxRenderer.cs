@@ -34,7 +34,7 @@ namespace Core.AddressTransactionReport
         Fees
     }
 
-    public interface IAddressXlsxRenderer
+    public interface ITransactionXlsxRenderer
     {
         Task<Stream> RenderTransactionReport(IXlsxTransactionsReportData data);
     }

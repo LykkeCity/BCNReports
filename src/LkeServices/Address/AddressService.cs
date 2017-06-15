@@ -2,14 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 using Common;
 using Core.Address;
 using Core.Settings;
 using Newtonsoft.Json;
 
-namespace LkeServices
+namespace LkeServices.Address
 {
     #region NinjaContracts
 

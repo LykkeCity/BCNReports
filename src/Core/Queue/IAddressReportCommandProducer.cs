@@ -9,8 +9,8 @@ namespace Core.Queue
         public string Email { get; set; }
     }
 
-    public interface IReportCommandProducer
+    public interface IAddressReportCommandProducer
     {
-        Task CreateAddressTransactionsReportCommand(string address, string email);
+        Task CreateCommand(string address, string email);
     }
 }
