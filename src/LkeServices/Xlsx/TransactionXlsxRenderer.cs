@@ -13,10 +13,10 @@ namespace LkeServices.Xlsx
     {
         public async Task<Stream> RenderTransactionReport(IXlsxTransactionsReportData data)
         {
-
+            var title = "Export from Lykke Blockchain Explorer";
             using (var package = new ExcelPackage())
             {
-               var  ws = package.Workbook.Worksheets.Add("Address Transactions");
+               var  ws = package.Workbook.Worksheets.Add(title);
 
                 var config = new Dictionary<string, XlsxCellBuilder>
                 {
@@ -34,10 +34,10 @@ namespace LkeServices.Xlsx
                 var columnCounter = 1;
 
 
-                var title = ws.Cells[1, 1];
-                title.Value = "Export from Lykke Blockchain Explorer";
-                title.Style.Font.Size = 25;
-                title.Style.Font.Bold = true;
+                var titleCell = ws.Cells[1, 1];
+                titleCell.Value = title;
+                titleCell.Style.Font.Size = 25;
+                titleCell.Style.Font.Bold = true;
 
                 const  int firstRow = 6;
                 foreach (var headerKey in config.Keys)
