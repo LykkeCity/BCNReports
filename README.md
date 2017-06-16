@@ -1,6 +1,6 @@
 # BCNReports
 The service is used for:
- * create xlsx reports for blockchain address, save it to azure blobstorage and prodive http API to access reports. Reports are processed using background worker. Optional user can by notified at report done event via email.
+ * create xlsx reports for specified blockchain address or asset id, save it to azure blobstorage and prodive http API to access reports. Reports are processed using background worker. Optional user can by notified at report done event via email.
  
 # Deploy
 
