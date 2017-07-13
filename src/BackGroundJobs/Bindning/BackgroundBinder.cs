@@ -11,7 +11,7 @@ namespace BackGroundJobs.Bindning
     public static class BackgroundBinder
     {
         public static void BindBackgroundJobs(this ContainerBuilder ioc, 
-            BaseSettings settings,
+            BcnReportsSettings settings,
             ILog log)
         {
             ioc.RegisterType<AddressTransactionsQueueFunctions>().AsSelf().SingleInstance();

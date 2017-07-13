@@ -18,19 +18,19 @@ namespace LkeServices.AssetTransactionReport
         private readonly ITransactionService _transactionService;
         private readonly IAssetDefinitionService _assetDefinitionService;
         private readonly IAssetTransactionsService _assetTransactionsService;
-        private readonly BaseSettings _baseSettings;
+        private readonly BcnReportsSettings _bcnReportsSettings;
 
         public AssetTransactionsReportService(ITransactionXlsxRenderer transactionXlsxRenderer, 
             ITransactionService transactionService, 
             IAssetDefinitionService assetDefinitionService, 
             IAssetTransactionsService assetTransactionsService, 
-            BaseSettings baseSettings)
+            BcnReportsSettings bcnReportsSettings)
         {
             _transactionXlsxRenderer = transactionXlsxRenderer;
             _transactionService = transactionService;
             _assetDefinitionService = assetDefinitionService;
             _assetTransactionsService = assetTransactionsService;
-            _baseSettings = baseSettings;
+            _bcnReportsSettings = bcnReportsSettings;
         }
 
         public async Task<Stream> GetTransactionsReport(string assetId)
@@ -45,7 +45,7 @@ namespace LkeServices.AssetTransactionReport
             var xlsxData = XlsxTransactionsReportData.Create(
                 txResps,
                 assetDictionary.Result,
-                _baseSettings.UsedNetwork());
+                _bcnReportsSettings.UsedNetwork());
 
             return await _transactionXlsxRenderer.RenderTransactionReport(xlsxData);
         }

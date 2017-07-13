@@ -21,20 +21,20 @@ namespace LkeServices.AddressTransactionReport
         private readonly ITransactionXlsxRenderer _transactionXlsxRenderer;
         private readonly IAddressService _addressService;
         private readonly IAssetDefinitionService _assetDefinitionService;
-        private readonly BaseSettings _baseSettings;
+        private readonly BcnReportsSettings _bcnReportsSettings;
         private readonly ILog _log;
         private readonly ITransactionService _transactionService;
         
         public AddressTransactionReportService(ITransactionXlsxRenderer transactionXlsxRenderer, 
             IAssetDefinitionService assetDefinitionService, 
-            BaseSettings baseSettings,
+            BcnReportsSettings bcnReportsSettings,
             ILog log, 
             IAddressService addressService, 
             ITransactionService transactionService)
         {
             _transactionXlsxRenderer = transactionXlsxRenderer;
             _assetDefinitionService = assetDefinitionService;
-            _baseSettings = baseSettings;
+            _bcnReportsSettings = bcnReportsSettings;
             _log = log;
             _addressService = addressService;
             _transactionService = transactionService;
@@ -55,7 +55,7 @@ namespace LkeServices.AddressTransactionReport
             var xlsxData = XlsxTransactionsReportData.Create(
                 txResps, 
                 assetDefinitionDictionary.Result,
-                _baseSettings.UsedNetwork());
+                _bcnReportsSettings.UsedNetwork());
             
             return await _transactionXlsxRenderer.RenderTransactionReport(xlsxData);
         }

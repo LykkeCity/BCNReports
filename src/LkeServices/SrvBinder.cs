@@ -16,12 +16,13 @@ using LkeServices.Transaction;
 using LkeServices.Xlsx;
 using Lykke.EmailSenderProducer;
 using QBitNinja.Client;
+using ServiceBusEmailSettings = Core.Settings.ServiceBusEmailSettings;
 
 namespace LkeServices
 {
     public static class SrvBinder
     {
-        public static void BindCommonServices(this ContainerBuilder ioc, BaseSettings settings, ILog log)
+        public static void BindCommonServices(this ContainerBuilder ioc, BcnReportsSettings settings, ServiceBusEmailSettings serviceBusEmailSettings, ILog log)
         {
             ioc.RegisterType<AssetDefinitionService>().As<IAssetDefinitionService>();
             ioc.RegisterType<AssetTransactionsesService>().As<IAssetTransactionsService>();
@@ -31,7 +32,7 @@ namespace LkeServices
             ioc.RegisterType<AddressTransactionReportService>().As<IAddressTransactionReportService>();
             ioc.RegisterType<AssetTransactionsReportService>().As<IAssetTransactionsReportService>();
 
-            ioc.Register(p => new EmailSenderProducer(settings.ServiceBusEmailSettings,  log)).AsSelf();
+            ioc.Register(p => new EmailSenderProducer(serviceBusEmailSettings,  log)).AsSelf();
 
             ioc.Register(p => new QBitNinjaClient(settings.NinjaUrl, settings.UsedNetwork()){Colored = true});
         }

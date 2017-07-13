@@ -22,14 +22,14 @@ namespace LkeServices.Transaction
         private readonly QBitNinjaClient _qBitNinjaClient;
         private readonly ILog _log;
 
-        public TransactionService(BaseSettings baseSettings, 
+        public TransactionService(BcnReportsSettings bcnReportsSettings, 
             QBitNinjaClient qBitNinjaClient, 
             ILog log)
         {
             _qBitNinjaClient = qBitNinjaClient;
             _log = log;
 
-            _globalSemaphore = new SemaphoreSlim(baseSettings.NinjaTransactionsMaxConcurrentRequestCount);
+            _globalSemaphore = new SemaphoreSlim(bcnReportsSettings.NinjaTransactionsMaxConcurrentRequestCount);
         }
 
         public async Task<IEnumerable<GetTransactionResponse>> GetTransactions(IEnumerable<uint256> transactionIds)

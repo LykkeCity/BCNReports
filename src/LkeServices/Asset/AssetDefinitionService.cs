@@ -84,16 +84,16 @@ namespace LkeServices.Asset
 
     public class AssetDefinitionService:IAssetDefinitionService
     {
-        private readonly BaseSettings _baseSettings;
+        private readonly BcnReportsSettings _bcnReportsSettings;
 
-        public AssetDefinitionService(BaseSettings baseSettings)
+        public AssetDefinitionService(BcnReportsSettings bcnReportsSettings)
         {
-            _baseSettings = baseSettings;
+            _bcnReportsSettings = bcnReportsSettings;
         }
 
         public async Task<IDictionary<string, IAssetDefinition>> GetAssetDefinitionsAsync()
         {
-            var resp = await _baseSettings.BlockChainExplolerUrl.AppendPathSegment("/api/assets").GetJsonAsync<List<AssetDefinitionContract>>();
+            var resp = await _bcnReportsSettings.BlockChainExplolerUrl.AppendPathSegment("/api/assets").GetJsonAsync<List<AssetDefinitionContract>>();
 
             var result = new Dictionary<string, IAssetDefinition>();
             foreach (var assetContract in resp)

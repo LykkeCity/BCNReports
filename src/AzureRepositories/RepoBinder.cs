@@ -20,13 +20,13 @@ namespace AzureRepositories
 {
     public static class RepoBinder
     {
-        public static void BindAzure(this ContainerBuilder ioc, BaseSettings settings, ILog log)
+        public static void BindAzure(this ContainerBuilder ioc, BcnReportsSettings settings, ILog log)
         {
             ioc.BindRepo(settings, log);
             ioc.BindQueue(settings);
         }
 
-        private static void BindRepo(this ContainerBuilder ioc, BaseSettings settings, ILog log)
+        private static void BindRepo(this ContainerBuilder ioc, BcnReportsSettings settings, ILog log)
         {
             ioc.RegisterInstance(new ServiceMonitoringRepository(new AzureTableStorage<MonitoringRecordEntity>(settings.Db.SharedConnString, "Monitoring", log)))
                 .As<IServiceMonitoringRepository>();
@@ -44,7 +44,7 @@ namespace AzureRepositories
                 .As<IAssetTransactionsReportStorage>();
         }
 
-        private static void BindQueue(this ContainerBuilder ioc, BaseSettings settings)
+        private static void BindQueue(this ContainerBuilder ioc, BcnReportsSettings settings)
         {
             ioc.Register(p => new SlackNotificationsProducer(
                     new AzureQueueExt(settings.Db.SharedConnString, QueueNames.SlackNotifications)))

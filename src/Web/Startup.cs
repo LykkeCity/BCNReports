@@ -36,13 +36,12 @@ namespace Web
             Configuration = builder.Build();
         }
 
-        private BaseSettings GetSettings()
+        private GeneralSettings GetSettings()
         {
 #if DEBUG
-            var settings = GeneralSettingsReader.ReadGeneralSettingsLocal<BaseSettings>("../../settings.json");
+            var settings = GeneralSettingsReader.ReadGeneralSettingsLocal<GeneralSettings>("../../settings.json");
 #else
             var generalSettings = GeneralSettingsReader.ReadGeneralSettings<GeneralSettings>(Configuration["SettingsUrl"]);
-            var settings = generalSettings?.BcnReports;
 #endif
 
             GeneralSettingsValidator.Validate(settings);

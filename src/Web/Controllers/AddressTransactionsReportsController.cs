@@ -20,13 +20,13 @@ namespace Web.Controllers
     {
         private readonly IAddressReportCommandProducer _commandProducer;
         private readonly IAddressTransactionsReportMetadataRepository _addressTransactionsReportMetadataRepository;
-        private readonly BaseSettings _baseSettings;
+        private readonly BcnReportsSettings _bcnReportsSettings;
 
-        public AddressTransactionsReportsController(BaseSettings baseSettings, 
+        public AddressTransactionsReportsController(BcnReportsSettings bcnReportsSettings, 
             IAddressReportCommandProducer commandProducer, 
             IAddressTransactionsReportMetadataRepository addressTransactionsReportMetadataRepository)
         {
-            _baseSettings = baseSettings;
+            _bcnReportsSettings = bcnReportsSettings;
             _commandProducer = commandProducer;
             _addressTransactionsReportMetadataRepository = addressTransactionsReportMetadataRepository;
         }
@@ -39,7 +39,7 @@ namespace Web.Controllers
                 return CommandResultBuilder.Fail(ModelState.GetErrorsList().ToArray());
             }
 
-            if (!BitcoinAddressHelper.IsAddress(input.BitcoinAddress, _baseSettings.UsedNetwork()))
+            if (!BitcoinAddressHelper.IsAddress(input.BitcoinAddress, _bcnReportsSettings.UsedNetwork()))
             {
                 return CommandResultBuilder.Fail("Invalid base58 address string.");
             }

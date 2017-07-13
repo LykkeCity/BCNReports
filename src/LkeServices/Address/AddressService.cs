@@ -87,11 +87,11 @@ namespace LkeServices.Address
 
     public class AddressService:IAddressService
     {
-        private readonly BaseSettings _baseSettings;
+        private readonly BcnReportsSettings _bcnReportsSettings;
 
-        public AddressService(BaseSettings baseSettings)
+        public AddressService(BcnReportsSettings bcnReportsSettings)
         {
-            _baseSettings = baseSettings;
+            _bcnReportsSettings = bcnReportsSettings;
         }
 
         public async Task<IEnumerable<IAddressTransaction>> GetTransactionsForAddress(string address)
@@ -102,8 +102,8 @@ namespace LkeServices.Address
             {
                 do
                 {
-                    httpClient.Timeout = TimeSpan.FromMinutes(_baseSettings.TimeoutMinutesOnGettingNinjaTransactionsList);
-                    httpClient.BaseAddress = new Uri(_baseSettings.NinjaUrl);
+                    httpClient.Timeout = TimeSpan.FromMinutes(_bcnReportsSettings.TimeoutMinutesOnGettingNinjaTransactionsList);
+                    httpClient.BaseAddress = new Uri(_bcnReportsSettings.NinjaUrl);
 
                     var url = $"/balances/{address}/?colored=true"
                               + (string.IsNullOrEmpty(continuation) ? "" : $"&continuation={continuation}");

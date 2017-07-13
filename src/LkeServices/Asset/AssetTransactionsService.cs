@@ -28,16 +28,16 @@ namespace LkeServices.Asset
 
     public class AssetTransactionsesService:IAssetTransactionsService
     {
-        private readonly BaseSettings _baseSettings;
+        private readonly BcnReportsSettings _bcnReportsSettings;
 
-        public AssetTransactionsesService(BaseSettings baseSettings)
+        public AssetTransactionsesService(BcnReportsSettings bcnReportsSettings)
         {
-            _baseSettings = baseSettings;
+            _bcnReportsSettings = bcnReportsSettings;
         }
 
         public async Task<IEnumerable<IAssetTransaction>> GetTransactionsForAsset(string assetId)
         {
-            var resp = await _baseSettings.BlockChainExplolerUrl
+            var resp = await _bcnReportsSettings.BlockChainExplolerUrl
                 .AppendPathSegment($"api/assetstransactions/{assetId}")
                 .GetJsonAsync<AssetTransactionContract[]>();
 

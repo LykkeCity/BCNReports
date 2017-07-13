@@ -6,11 +6,11 @@ namespace LkeServices.Settings
 {
     public static class BaseSettingsHelper
     {
-        public static Network UsedNetwork(this BaseSettings baseSettings)
+        public static Network UsedNetwork(this BcnReportsSettings bcnReportsSettings)
         {
             try
             {
-                return Network.GetNetwork(baseSettings.Network);
+                return Network.GetNetwork(bcnReportsSettings.Network);
             }
             catch (Exception)
             {
