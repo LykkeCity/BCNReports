@@ -41,7 +41,7 @@ namespace Web
 #if DEBUG
             var settings = GeneralSettingsReader.ReadGeneralSettingsLocal<GeneralSettings>("../../settings.json");
 #else
-            var generalSettings = GeneralSettingsReader.ReadGeneralSettings<GeneralSettings>(Configuration["SettingsUrl"]);
+            var settings = GeneralSettingsReader.ReadGeneralSettings<GeneralSettings>(Configuration["SettingsUrl"]);
 #endif
 
             GeneralSettingsValidator.Validate(settings);
