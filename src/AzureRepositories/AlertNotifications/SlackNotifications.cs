@@ -3,30 +3,28 @@ using AzureStorage.Queue;
 using Common;
 using Core.AlertNotifications;
 using Lykke.JobTriggers.Abstractions;
+using Lykke.SlackNotifications;
 
 namespace AzureRepositories.AlertNotifications
 {
     public class SlackNotificationsProducer : ISlackNotificationsProducer, IPoisionQueueNotifier
     {
-        private readonly IQueueExt _queueExt;
+        private readonly ISlackNotificationsSender _slackClient;
 
-        public SlackNotificationsProducer(IQueueExt queueExt)
+        public SlackNotificationsProducer(ISlackNotificationsSender slackClient)
         {
-            _queueExt = queueExt;
+            _slackClient = slackClient;
         }
 
-        public Task SendNotification(string type, string message, string sender)
+
+        public async Task SendNotification(string type, string message, string sender)
         {
-            return
-                _queueExt.PutRawMessageAsync(
-                    new SlackNotificationRequestMsg { Message = message, Sender = sender, Type = type }.ToJson());
+            await _slackClient.SendAsync(type, sender, message);
         }
 
-        public Task NotifyAsync(string message)
+        public async Task NotifyAsync(string message)
         {
-            return
-                _queueExt.PutRawMessageAsync(
-                    new SlackNotificationRequestMsg { Message = message, Sender = "BcnReports", Type = "PoisionQueueNotifier" }.ToJson());
+            await _slackClient.SendAsync("PoisionQueueNotifier", "BcnReports", message);
         }
     }
 }

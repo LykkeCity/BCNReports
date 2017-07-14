@@ -47,12 +47,10 @@ namespace AzureRepositories
 
         private static void BindQueue(this ContainerBuilder ioc, GeneralSettings settings)
         {
-            ioc.Register(p => new SlackNotificationsProducer(
-                    new AzureQueueExt(settings.BcnReports.Db.SharedConnString, QueueNames.SlackNotifications)))
+            ioc.RegisterType<SlackNotificationsProducer>()
                 .As<ISlackNotificationsProducer>();
 
-            ioc.Register(p => new SlackNotificationsProducer(
-                    new AzureQueueExt(settings.BcnReports.Db.SharedConnString, QueueNames.SlackNotifications)))
+            ioc.RegisterType<SlackNotificationsProducer>()
                 .As<IPoisionQueueNotifier>();
 
             ioc.Register(p => new AddressReportCommandProducer(new AzureQueueExt(settings.BcnReports.Db.DataConnString, QueueNames.AddressTransactionsReport)))

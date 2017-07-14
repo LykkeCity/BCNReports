@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.12
+VisualStudioVersion = 15.0.26430.15
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Web", "Web\Web.csproj", "{F1C5AD8C-D6A5-4D16-9023-49583650FD8A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Web", "Web\Web.csproj", "{F1C5AD8C-D6A5-4D16-9023-49583650FD8A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core", "Core\Core.csproj", "{D3A7C99B-0BC6-436A-9C04-94F14E8C4BC7}"
 EndProject
@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AzureRepositories", "AzureR
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LkeServices", "LkeServices\LkeServices.csproj", "{D3524DF5-9F21-417B-AAB1-51C55AE89837}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BackGroundJobs", "BackGroundJobs\BackGroundJobs.csproj", "{CFAACCC3-7FEE-4256-96F9-CEAE6D6F55CF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BackGroundJobs", "BackGroundJobs\BackGroundJobs.csproj", "{CFAACCC3-7FEE-4256-96F9-CEAE6D6F55CF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -12,6 +12,9 @@ namespace Core.Settings
 
         [Required]
         public MonitoringServiceClientSettings MonitoringServiceClient { get; set; }
+
+        [Required]
+        public SlackNotificationSettings SlackNotifications { get; set; }
     }
 
     public class EmailSenderSettings
@@ -19,6 +22,20 @@ namespace Core.Settings
         [Required]
         public string ServiceUrl { get; set; }
     }
+
+    public class SlackNotificationSettings
+    {
+        [Required]
+        public AzureQueueSettings AzureQueue { get; set; }
+    }
+
+    public class AzureQueueSettings
+    {
+        public string ConnectionString { get; set; }
+
+        public string QueueName { get; set; }
+    }
+
 
 
     public class MonitoringServiceClientSettings
