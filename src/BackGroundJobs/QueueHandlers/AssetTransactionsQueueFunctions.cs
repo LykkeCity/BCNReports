@@ -2,14 +2,12 @@
 using System.Threading.Tasks;
 using Common;
 using Common.Log;
-using Core.AddressTransactionReport;
 using Core.AssetTransactionReport;
 using Core.Queue;
 using Core.ReportMetadata;
 using Core.ReportStorage;
-using Lykke.EmailSenderProducer;
-using Lykke.EmailSenderProducer.Models;
 using Lykke.JobTriggers.Triggers.Attributes;
+using Lykke.Service.EmailSender;
 
 namespace BackGroundJobs.QueueHandlers
 {
@@ -19,9 +17,9 @@ namespace BackGroundJobs.QueueHandlers
         private readonly IAssetTransactionsReportMetadataRepository _metadataRepository;
         private readonly ILog _log;
         private readonly IAssetTransactionsReportStorage _reportStorage;
-        private readonly EmailSenderProducer _emailSenderProducer;
+        private readonly EmailSenderClient _emailSenderProducer;
 
-        public AssetTransactionsQueueFunctions(EmailSenderProducer emailSenderProducer, 
+        public AssetTransactionsQueueFunctions(EmailSenderClient emailSenderProducer, 
             IAssetTransactionsReportService reportService, 
             IAssetTransactionsReportMetadataRepository metadataRepository, 
             ILog log, 
@@ -50,12 +48,14 @@ namespace BackGroundJobs.QueueHandlers
                 var emailMes = new EmailMessage
                 {
                     Subject = $"Report for assetId {command.AssetId} at {reportDate:f}",
-                    Body = $"Report for assetId {command.AssetId} at {reportDate:f} - {saveResult.Url}",
+                    TextBody = $"Report for assetId {command.AssetId} at {reportDate:f} - {saveResult.Url}",
+                    ToEmailAddress = command.Email,
+                    ToDisplayName = command.Email
                 };
 
                 if (!string.IsNullOrEmpty(command.Email))
                 {
-                    await _emailSenderProducer.SendEmailAsync(command.Email, emailMes);
+                    await _emailSenderProducer.SendAsync(emailMes);
                 }
 
                 await _metadataRepository.SetDone(command.AssetId, saveResult.Url);
