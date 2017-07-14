@@ -8,6 +8,8 @@
     <PackageReference Include="Lykke.AzureStorage" Version="1.2.22" />
     <PackageReference Include="Lykke.Common" Version="1.1.69" />
     <PackageReference Include="Lykke.JobTriggers" Version="1.1.6" />
+    <PackageReference Include="Lykke.MonitoringServiceApiCaller" Version="1.0.31" />
+    <PackageReference Include="Lykke.SlackNotification.AzureQueue" Version="1.0.4" />
   </ItemGroup>
 
   <ItemGroup>

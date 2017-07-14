@@ -11,7 +11,7 @@ namespace BackGroundJobs.Bindning
     public static class BackgroundBinder
     {
         public static void BindBackgroundJobs(this ContainerBuilder ioc, 
-            BcnReportsSettings settings,
+            GeneralSettings settings,
             ILog log)
         {
             ioc.RegisterType<AddressTransactionsQueueFunctions>().AsSelf().SingleInstance();
@@ -21,7 +21,7 @@ namespace BackGroundJobs.Bindning
             ioc.AddTriggers(pool =>
             {
                 // default connection must be initialized
-                pool.AddDefaultConnection(settings.Db.DataConnString);
+                pool.AddDefaultConnection(settings.BcnReports.Db.DataConnString);
             });
         }
     }

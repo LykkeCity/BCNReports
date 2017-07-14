@@ -9,8 +9,12 @@ using Autofac.Extensions.DependencyInjection;
 using AzureRepositories.Settings;
 using AzureRepositories.Settings.Validation;
 using BackGroundJobs.TimerFunctions;
+using Common.Log;
 using Core.Settings;
+using Lykke.AzureQueueIntegration;
 using Lykke.JobTriggers.Triggers;
+using Lykke.SlackNotification.AzureQueue;
+using Lykke.SlackNotifications;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -54,6 +58,9 @@ namespace Web
         // This method gets called by the runtime. Use this method to add services to the container.
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
+            var settings = GetSettings();
+
+
             // Add framework services.
             services.AddMvc();
 
@@ -69,9 +76,9 @@ namespace Web
             });
 
 
-            var settings = GetSettings();
 
-            var builder = new AzureBinder().Bind(settings);
+            var builder = new AzureBinder().Bind(settings, services);
+
             builder.Populate(services);
 
 

@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Lykke.EmailSenderProducer.Interfaces;
 
 namespace Core.Settings
 {
@@ -31,8 +30,6 @@ namespace Core.Settings
         [Required]
         public string DataConnString { get; set; }
 
-        [Required]
-        public string SharedConnString { get; set; }
         [Required]
         public string LogsConnString { get; set; }
     }
