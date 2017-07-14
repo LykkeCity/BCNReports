@@ -31,8 +31,6 @@ namespace Core.Settings
         public string DataConnString { get; set; }
 
         [Required]
-        public string SharedConnString { get; set; }
-        [Required]
         public string LogsConnString { get; set; }
     }
 
