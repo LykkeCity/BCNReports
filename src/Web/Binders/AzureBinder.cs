@@ -56,6 +56,7 @@ namespace Web.Binders
 #endif
 
             ioc.RegisterInstance(settings);
+            ioc.RegisterInstance(settings.BcnReports);
 
             ioc.BindCommonServices(settings, log);
             ioc.BindAzure(settings, log);
