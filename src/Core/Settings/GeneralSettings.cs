@@ -9,6 +9,9 @@ namespace Core.Settings
 
         [Required]
         public EmailSenderSettings EmailSender { get; set; }
+
+        [Required]
+        public MonitoringServiceClientSettings MonitoringServiceClient { get; set; }
     }
 
     public class EmailSenderSettings
@@ -16,4 +19,12 @@ namespace Core.Settings
         [Required]
         public string ServiceUrl { get; set; }
     }
+
+
+    public class MonitoringServiceClientSettings
+    {
+        [Required]
+        public string MonitoringServiceUrl { get; set; }
+    }
+
 }

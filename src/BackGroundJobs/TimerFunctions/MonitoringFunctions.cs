@@ -7,11 +7,11 @@ namespace BackGroundJobs.TimerFunctions
 {
     public class MonitoringFunctions
     {
-        private readonly IServiceMonitoringRepository _serviceMonitoringRepository;
+        private readonly IMonitoringService _monitoringService;
 
-        public MonitoringFunctions(IServiceMonitoringRepository serviceMonitoringRepository)
+        public MonitoringFunctions(IMonitoringService monitoringService)
         {
-            _serviceMonitoringRepository = serviceMonitoringRepository;
+            _monitoringService = monitoringService;
         }
 
         private const string ServiceName = "BcnReports";
@@ -19,16 +19,13 @@ namespace BackGroundJobs.TimerFunctions
         [TimerTrigger("00:00:30")]
         public  async Task WriteMonitoringRecord()
         {
-            var now = DateTime.UtcNow;
-
             var record = new MonitoringRecord
             {
-                DateTime = now,
                 ServiceName = ServiceName,
                 Version = Microsoft.Extensions.PlatformAbstractions.PlatformServices.Default.Application.ApplicationVersion
             };
 
-            await _serviceMonitoringRepository.UpdateOrCreate(record);
+            await _monitoringService.WriteRecord(record);
         }
     }
 }

@@ -33,10 +33,9 @@ namespace Web.Binders
             return ioc;
         }
 
-        private void InitContainer(ContainerBuilder ioc, GeneralSettings generalSettings, ILog log)
+        private void InitContainer(ContainerBuilder ioc, GeneralSettings settings, ILog log)
         {
-
-            var settings = generalSettings.BcnReports;
+            
 #if DEBUG
             log.WriteInfoAsync("BcnReports Web", "App start", null, $"BcnReportsSettings : {settings.ToJson()}").Wait();
 #else
@@ -46,7 +45,7 @@ namespace Web.Binders
             ioc.RegisterInstance(log);
             ioc.RegisterInstance(settings);
 
-            ioc.BindCommonServices(generalSettings, log);
+            ioc.BindCommonServices(settings, log);
             ioc.BindAzure(settings, log);
             ioc.BindAzure(settings, log);
             ioc.BindBackgroundJobs(settings, log);
