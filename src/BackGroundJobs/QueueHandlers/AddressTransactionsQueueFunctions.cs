@@ -6,8 +6,9 @@ using Core.AddressTransactionReport;
 using Core.Queue;
 using Core.ReportMetadata;
 using Core.ReportStorage;
+using Lykke.EmailSenderProducer;
+using Lykke.EmailSenderProducer.Models;
 using Lykke.JobTriggers.Triggers.Attributes;
-using Lykke.Service.EmailSender;
 
 namespace BackGroundJobs.QueueHandlers
 {
@@ -17,12 +18,12 @@ namespace BackGroundJobs.QueueHandlers
         private readonly IAddressTransactionsReportMetadataRepository _addressTransactionsReportMetadataRepository;
         private readonly ILog _log;
         private readonly IAddressTransactionsReportStorage _addressTransactionsReportStorage;
-        private readonly EmailSenderClient _emailSenderProducer;
+        private readonly EmailSenderProducer _emailSenderProducer;
 
         public AddressTransactionsQueueFunctions(
             IAddressTransactionReportService addressTransactionReportService, 
-            ILog log,
-            EmailSenderClient emailSenderProducer,
+            ILog log, 
+            EmailSenderProducer emailSenderProducer,
             IAddressTransactionsReportMetadataRepository addressTransactionsReportMetadataRepository,
             IAddressTransactionsReportStorage addressTransactionsReportStorage)
         {
@@ -50,14 +51,12 @@ namespace BackGroundJobs.QueueHandlers
                 var emailMes = new EmailMessage
                 {
                     Subject = $"Report for {command.Address} at {reportDate:f}",
-                    TextBody = $"Report for {command.Address} at {reportDate:f} - {saveResult.Url}",
-                    ToEmailAddress = command.Email,
-                    ToDisplayName = command.Email
+                    Body = $"Report for {command.Address} at {reportDate:f} - {saveResult.Url}",
                 };
 
                 if (!string.IsNullOrEmpty(command.Email))
                 {
-                    await _emailSenderProducer.SendAsync(emailMes);
+                    await _emailSenderProducer.SendEmailAsync(command.Email, emailMes);
                 }
 
                 await _addressTransactionsReportMetadataRepository.SetDone(command.Address, saveResult.Url);

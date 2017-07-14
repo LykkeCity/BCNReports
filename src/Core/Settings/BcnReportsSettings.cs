@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Lykke.EmailSenderProducer.Interfaces;
 
 namespace Core.Settings
 {
