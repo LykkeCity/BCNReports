@@ -23,9 +23,12 @@ namespace LkeServices.Xlsx
                     {"Tx Hash", new XlsxCellBuilder(p => p.TransactionHash, width: 75) },
 
                     {"Block No.", new XlsxCellBuilder(p =>p.BlockHash, width: 75) },
+
+                    {"TimeStamp", new XlsxCellBuilder(p => p.BlockDate?.ToString("g"), width: 75) },
                     {"Type", new XlsxCellBuilder(p => p.CoinType.ToString(), width: 10) },
                     {"No.", new XlsxCellBuilder(p => p.Index, width: 10) },
                     {"Address", new XlsxCellBuilder(p => p.Address, width: 75) },
+                    {"Address", new XlsxCellBuilder(p => p.ColoredAddress, width: 75) },
                     {"Btc value", new XlsxCellBuilder(p => p.BtcValue.ToStringBtcFormat(), width: 50) },
                     {"Coloured Asset", new XlsxCellBuilder(p => p.ColouredAssetName, width: 50) },
                     {"Coloured Asset Value", new XlsxCellBuilder(p => p.ColouredAssetValue, width: 50) }

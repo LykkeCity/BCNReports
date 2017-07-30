@@ -18,8 +18,10 @@ namespace LkeServices.Xlsx
         {
             public string TransactionHash { get; set; }
             public string BlockHash { get; set; }
+            public DateTime? BlockDate { get; set; }
             public int Index { get; set; }
             public string Address { get; set; }
+            public string ColoredAddress { get; set; }
             public double BtcValue { get; set; }
             public string ColouredAssetName { get; set; }
             public double ColouredAssetValue { get; set; }
@@ -31,37 +33,64 @@ namespace LkeServices.Xlsx
                 var index = 0;
                 foreach (var inOut in source.SpentCoins)
                 {
-                    var addr = inOut.TxOut?.ScriptPubKey?.GetDestinationAddress(network)?.ToWif();
+                    var addr = inOut.TxOut?.ScriptPubKey?.GetDestinationAddress(network);
+                    
+                    yield return Create(addr,
+                        inOut, 
+                        source.Block, 
+                        source.TransactionId, 
+                        assetDictionary, 
+                        index, 
+                        network, 
+                        CoinType.Input);
 
-                    yield return Create(addr, inOut, source.Block?.BlockId, source.TransactionId, assetDictionary, index, network, CoinType.Input);
                     index++;
                 }
 
                 index = 0;
                 foreach (var inOut in source.ReceivedCoins)
                 {
-                    var addr = inOut.TxOut?.ScriptPubKey?.GetDestinationAddress(network)?.ToWif();
+                    var addr = inOut.TxOut?.ScriptPubKey?.GetDestinationAddress(network);
 
-                    yield return Create(addr, inOut, source.Block?.BlockId, source.TransactionId, assetDictionary, index, network, CoinType.Output);
+                    yield return Create(addr, 
+                        inOut, 
+                        source.Block, 
+                        source.TransactionId, 
+                        assetDictionary, 
+                        index, 
+                        network, 
+                        CoinType.Output);
+
                     index++;
                 }
 
-                yield return CreateFees(source.Fees, source.Block?.BlockId, source.TransactionId, index);
+                yield return CreateFees(source.Fees, source.Block, source.TransactionId, index);
             }
 
 
-            private static XlsxTransactionInputOutput Create(string sourceAddr, ICoin source, uint256 blockId, uint256 transactionHash,
-                IDictionary<string, IAssetDefinition> assetDictionary, int index, Network network, CoinType coinType)
+            private static XlsxTransactionInputOutput Create(BitcoinAddress address,
+                ICoin source, 
+                BlockInformation block,
+                uint256 transactionHash,
+                IDictionary<string, IAssetDefinition> assetDictionary, 
+                int index, 
+                Network network, 
+                CoinType coinType)
             {
                 var result = new XlsxTransactionInputOutput
                 {
-                    Address = sourceAddr,
-                    BlockHash = blockId?.ToString(),
+                    Address = address?.ToWif(),
+                    ColoredAddress = address?.ToColoredAddress()?.ToWif(),
                     TransactionHash = transactionHash.ToString(),
                     Index = index,
                     CoinType = coinType,
                 };
 
+                if (block != null)
+                {
+                    result.BlockDate = block.BlockTime.UtcDateTime;
+                    result.BlockHash = block.BlockId.ToString();
+                }
                 var colored = source as ColoredCoin;
                 if (colored != null)
                 {
@@ -86,16 +115,23 @@ namespace LkeServices.Xlsx
                 return result;
             }
 
-            private static XlsxTransactionInputOutput CreateFees(Money fees, uint256 blockId, uint256 transactionHash, int index)
+            private static XlsxTransactionInputOutput CreateFees(Money fees, BlockInformation block, uint256 transactionHash, int index)
             {
-                return new XlsxTransactionInputOutput
+                var result =  new XlsxTransactionInputOutput
                 {
-                    BlockHash = blockId?.ToString(),
                     TransactionHash = transactionHash.ToString(),
                     Index = index,
                     CoinType = CoinType.Fees,
                     BtcValue = BitcoinUtils.SatoshiToBtc(fees.Satoshi)
                 };
+
+                if (block != null)
+                {
+                    result.BlockDate = block.BlockTime.UtcDateTime;
+                    result.BlockHash = block.BlockId.ToString();
+                }
+
+                return result;
             }
         }
 

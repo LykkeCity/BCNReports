@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -15,8 +16,11 @@ namespace Core.AddressTransactionReport
 
         string BlockHash { get; }
 
+        DateTime? BlockDate { get; }
+
         int Index { get; }
         string Address { get; }
+        string ColoredAddress { get; }
 
         double BtcValue { get; }
 
