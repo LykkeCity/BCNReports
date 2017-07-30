@@ -28,7 +28,7 @@ namespace LkeServices.Xlsx
                     {"Type", new XlsxCellBuilder(p => p.CoinType.ToString(), width: 10) },
                     {"No.", new XlsxCellBuilder(p => p.Index, width: 10) },
                     {"Address", new XlsxCellBuilder(p => p.Address, width: 75) },
-                    {"Address", new XlsxCellBuilder(p => p.ColoredAddress, width: 75) },
+                    {"ColoredAddress", new XlsxCellBuilder(p => p.ColoredAddress, width: 75) },
                     {"Btc value", new XlsxCellBuilder(p => p.BtcValue.ToStringBtcFormat(), width: 50) },
                     {"Coloured Asset", new XlsxCellBuilder(p => p.ColouredAssetName, width: 50) },
                     {"Coloured Asset Value", new XlsxCellBuilder(p => p.ColouredAssetValue, width: 50) }
