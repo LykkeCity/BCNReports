@@ -9,6 +9,7 @@ using Lykke.Service.BcnReports.Core.AddressTransactionReport;
 using Lykke.Service.BcnReports.Core.Asset;
 using Lykke.Service.BcnReports.Core.Settings;
 using Lykke.Service.BcnReports.Core.Transaction;
+using Lykke.Service.BcnReports.Core.Xlsx;
 using Lykke.Service.BcnReports.Services.Settings;
 using Lykke.Service.BcnReports.Services.Xlsx;
 using NBitcoin;
@@ -20,23 +21,23 @@ namespace Lykke.Service.BcnReports.Services.AddressTransactionReport
         private readonly ITransactionXlsxRenderer _transactionXlsxRenderer;
         private readonly IAddressService _addressService;
         private readonly IAssetDefinitionService _assetDefinitionService;
-        private readonly BcnReportsSettings _bcnReportsSettings;
         private readonly ILog _log;
         private readonly ITransactionService _transactionService;
+        private readonly Network _network;
         
         public AddressTransactionReportService(ITransactionXlsxRenderer transactionXlsxRenderer, 
             IAssetDefinitionService assetDefinitionService, 
-            BcnReportsSettings bcnReportsSettings,
             ILog log, 
             IAddressService addressService, 
-            ITransactionService transactionService)
+            ITransactionService transactionService,
+            Network network)
         {
             _transactionXlsxRenderer = transactionXlsxRenderer;
             _assetDefinitionService = assetDefinitionService;
-            _bcnReportsSettings = bcnReportsSettings;
             _log = log;
             _addressService = addressService;
             _transactionService = transactionService;
+            _network = network;
         }
 
         public async Task<Stream> GetTransactionsReport(string addressId)
@@ -54,7 +55,7 @@ namespace Lykke.Service.BcnReports.Services.AddressTransactionReport
             var xlsxData = XlsxTransactionsReportData.Create(
                 txResps, 
                 assetDefinitionDictionary.Result,
-                _bcnReportsSettings.UsedNetwork());
+                _network);
             
             return await _transactionXlsxRenderer.RenderTransactionReport(xlsxData);
         }

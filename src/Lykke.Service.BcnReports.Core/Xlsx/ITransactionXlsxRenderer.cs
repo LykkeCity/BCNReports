@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace Lykke.Service.BcnReports.Core.AddressTransactionReport
+namespace Lykke.Service.BcnReports.Core.Xlsx
 {
     public interface IXlsxTransactionsReportData
     {

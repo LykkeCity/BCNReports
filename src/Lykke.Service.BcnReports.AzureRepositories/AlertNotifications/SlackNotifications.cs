@@ -1,11 +1,9 @@
 ﻿using System.Threading.Tasks;
-using AzureStorage.Queue;
-using Common;
 using Lykke.JobTriggers.Abstractions;
 using Lykke.Service.BcnReports.Core.AlertNotifications;
 using Lykke.SlackNotifications;
 
-namespace AzureRepositories.AlertNotifications
+namespace Lykke.Service.BcnReports.AzureRepositories.AlertNotifications
 {
     public class SlackNotificationsProducer : ISlackNotificationsProducer, IPoisionQueueNotifier
     {

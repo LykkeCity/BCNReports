@@ -6,8 +6,10 @@ using Lykke.Service.BcnReports.Core.Asset;
 using Lykke.Service.BcnReports.Core.AssetTransactionReport;
 using Lykke.Service.BcnReports.Core.Settings;
 using Lykke.Service.BcnReports.Core.Transaction;
+using Lykke.Service.BcnReports.Core.Xlsx;
 using Lykke.Service.BcnReports.Services.Settings;
 using Lykke.Service.BcnReports.Services.Xlsx;
+using NBitcoin;
 
 namespace Lykke.Service.BcnReports.Services.AssetTransactionReport
 {
@@ -17,19 +19,19 @@ namespace Lykke.Service.BcnReports.Services.AssetTransactionReport
         private readonly ITransactionService _transactionService;
         private readonly IAssetDefinitionService _assetDefinitionService;
         private readonly IAssetTransactionsService _assetTransactionsService;
-        private readonly BcnReportsSettings _bcnReportsSettings;
+        private readonly Network _network;
 
         public AssetTransactionsReportService(ITransactionXlsxRenderer transactionXlsxRenderer, 
             ITransactionService transactionService, 
             IAssetDefinitionService assetDefinitionService, 
             IAssetTransactionsService assetTransactionsService, 
-            BcnReportsSettings bcnReportsSettings)
+            Network network)
         {
             _transactionXlsxRenderer = transactionXlsxRenderer;
             _transactionService = transactionService;
             _assetDefinitionService = assetDefinitionService;
             _assetTransactionsService = assetTransactionsService;
-            _bcnReportsSettings = bcnReportsSettings;
+            _network = network;
         }
 
         public async Task<Stream> GetTransactionsReport(string assetId)
@@ -44,7 +46,7 @@ namespace Lykke.Service.BcnReports.Services.AssetTransactionReport
             var xlsxData = XlsxTransactionsReportData.Create(
                 txResps,
                 assetDictionary.Result,
-                _bcnReportsSettings.UsedNetwork());
+                _network);
 
             return await _transactionXlsxRenderer.RenderTransactionReport(xlsxData);
         }

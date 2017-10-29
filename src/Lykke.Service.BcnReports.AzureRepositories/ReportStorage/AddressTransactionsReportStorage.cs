@@ -1,8 +1,9 @@
-﻿using AzureStorage;
+﻿using AzureRepositories.ReportStorage;
+using AzureStorage;
 using Common.Log;
 using Lykke.Service.BcnReports.Core.ReportStorage;
 
-namespace AzureRepositories.ReportStorage
+namespace Lykke.Service.BcnReports.AzureRepositories.ReportStorage
 {
     public class AddressTransactionsReportStorage : BaseReportStorage, IAddressTransactionsReportStorage
     {

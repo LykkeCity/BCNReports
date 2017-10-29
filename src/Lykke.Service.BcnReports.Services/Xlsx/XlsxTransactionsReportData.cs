@@ -4,6 +4,7 @@ using System.Linq;
 using LkeServices.BitcoinHelpers;
 using Lykke.Service.BcnReports.Core.AddressTransactionReport;
 using Lykke.Service.BcnReports.Core.Asset;
+using Lykke.Service.BcnReports.Core.Xlsx;
 using NBitcoin;
 using QBitNinja.Client.Models;
 
@@ -76,10 +77,18 @@ namespace Lykke.Service.BcnReports.Services.Xlsx
                 Network network, 
                 CoinType coinType)
             {
+                string coloredAddress = null;
+                try
+                {
+                    coloredAddress = address?.ToColoredAddress()?.ToWif();
+                }
+                catch 
+                {
+                }
                 var result = new XlsxTransactionInputOutput
                 {
                     Address = address?.ToString(),
-                    ColoredAddress = address?.ToColoredAddress()?.ToWif(),
+                    ColoredAddress = coloredAddress,
                     TransactionHash = transactionHash.ToString(),
                     Index = index,
                     CoinType = coinType,

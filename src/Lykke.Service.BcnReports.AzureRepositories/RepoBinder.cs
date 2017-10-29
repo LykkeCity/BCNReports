@@ -1,12 +1,10 @@
 ﻿using Autofac;
-using AzureRepositories.AlertNotifications;
-using AzureRepositories.ReportMetadata;
-using AzureRepositories.ReportStorage;
 using AzureStorage.Blob;
 using AzureStorage.Queue;
 using AzureStorage.Tables;
 using Common.Log;
 using Lykke.JobTriggers.Abstractions;
+using Lykke.Service.BcnReports.AzureRepositories.AlertNotifications;
 using Lykke.Service.BcnReports.AzureRepositories.ReportMetadata;
 using Lykke.Service.BcnReports.AzureRepositories.ReportsCommands;
 using Lykke.Service.BcnReports.AzureRepositories.ReportStorage;
@@ -16,9 +14,8 @@ using Lykke.Service.BcnReports.Core.ReportMetadata;
 using Lykke.Service.BcnReports.Core.ReportStorage;
 using Lykke.Service.BcnReports.Core.Settings;
 using Lykke.SettingsReader;
-using IMonitoringService = Lykke.Service.BcnReports.Core.ServiceMonitoring.IMonitoringService;
 
-namespace AzureRepositories
+namespace Lykke.Service.BcnReports.AzureRepositories
 {
     public static class RepoBinder
     {
@@ -44,6 +41,12 @@ namespace AzureRepositories
 
             ioc.RegisterInstance(new AssetTransactionsReportStorage(log, AzureBlobStorage.Create(dataReloadingManager)))
                 .As<IAssetTransactionsReportStorage>();
+
+            ioc.RegisterInstance(new BlockTransactionsReportMetadataRepository(AzureTableStorage<BaseReportMetadataEntity>.Create(dataReloadingManager, "BlockTransactionReportMetadata", log)))
+                .As<IBlockTransactionsReportMetadataRepository>();
+
+            ioc.RegisterInstance(new BlockTransactionsReportStorage(log, AzureBlobStorage.Create(dataReloadingManager)))
+                .As<IBlockTransactionsReportStorage>();
         }
 
         private static void BindQueue(this ContainerBuilder ioc, IReloadingManager<GeneralSettings> settings)
@@ -55,13 +58,15 @@ namespace AzureRepositories
 
             ioc.RegisterType<SlackNotificationsProducer>()
                 .As<IPoisionQueueNotifier>();
-            
 
             ioc.Register(p => new AddressReportCommandProducer(AzureQueueExt.Create(dataReloadingManager, QueueNames.AddressTransactionsReport)))
                 .As<IAddressReportCommandProducer>();
 
             ioc.Register(p => new AssetReportCommandProducer(AzureQueueExt.Create(dataReloadingManager, QueueNames.AssetTransactionsReport)))
                 .As<IAssetReportCommandProducer>();
+
+            ioc.Register(p => new BlockReportCommandProducer(AzureQueueExt.Create(dataReloadingManager, QueueNames.BlockTransactionsReport)))
+                .As<IBlockReportCommandProducer>();
         }
     }
 }

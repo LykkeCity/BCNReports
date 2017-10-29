@@ -9,7 +9,7 @@ using Lykke.Service.BcnReports.Core.ReportMetadata;
 using Lykke.Service.BcnReports.Core.ReportStorage;
 using Lykke.Service.EmailSender;
 
-namespace BackGroundJobs.QueueHandlers
+namespace Lykke.Service.BcnReports.QueueHandlers
 {
     public class AssetTransactionsQueueFunctions
     {
@@ -37,6 +37,10 @@ namespace BackGroundJobs.QueueHandlers
         {
             try
             {
+                await _log.WriteMonitorAsync(nameof(AssetTransactionsQueueFunctions),
+                    nameof(CreateReport),
+                    command.ToJson(), "Started");
+
                 await _metadataRepository.SetProcessing(command.AssetId);
                 var reportDate = DateTime.UtcNow;
 
@@ -58,9 +62,9 @@ namespace BackGroundJobs.QueueHandlers
 
                 await _metadataRepository.SetDone(command.AssetId, saveResult.Url);
 
-                await _log.WriteInfoAsync(nameof(AssetTransactionsQueueFunctions), 
+                await _log.WriteMonitorAsync(nameof(AssetTransactionsQueueFunctions),
                     nameof(CreateReport),
-                    command.ToJson(), "Report proceeded");
+                    command.ToJson(), "Done");
             }
             catch (Exception e)
             {

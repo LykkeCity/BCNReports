@@ -6,6 +6,7 @@ using AzureStorage.Tables;
 using Common;
 using Common.Log;
 using Lykke.Logs;
+using Lykke.Service.BcnReports.AzureRepositories;
 using Lykke.Service.BcnReports.Bindning;
 using Lykke.Service.BcnReports.Core.Settings;
 using Lykke.Service.BcnReports.Services;

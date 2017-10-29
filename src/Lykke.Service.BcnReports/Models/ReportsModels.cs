@@ -23,6 +23,16 @@ namespace Lykke.Service.BcnReports.Models
         public string Email { get; set; }
     }
 
+
+    public class BlockTransactionsReportsRequest
+    {
+        [Required]
+        public string Block { get; set; }
+
+        [EmailAddress]
+        public string Email { get; set; }
+    }
+
     public class AddressReportMetadataViewModel
     {
         public string FileUrl { get; set; }
@@ -67,6 +77,33 @@ namespace Lykke.Service.BcnReports.Models
             return new AssetReportMetadataViewModel
             {
                 AssetId = source.Id,
+                FileUrl = source.FileUrl,
+                Finished = source.Finished,
+                Status = source.Status.ToString(),
+                LastError = source.LastError,
+                Started = source.Started,
+                QueuedAt = source.QueuedAt
+            };
+        }
+    }
+    
+    public class BlockReportMetadataViewModel
+    {
+        public string FileUrl { get; set; }
+
+        public string Status { get; set; }
+        public string BlockId { get; set; }
+        public string LastError { get; set; }
+
+        public DateTime? Started { get; set; }
+        public DateTime? Finished { get; set; }
+        public DateTime QueuedAt { get; set; }
+
+        public static BlockReportMetadataViewModel Create(IBaseReportMetadata source)
+        {
+            return new BlockReportMetadataViewModel
+            {
+                BlockId = source.Id,
                 FileUrl = source.FileUrl,
                 Finished = source.Finished,
                 Status = source.Status.ToString(),

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using LkeServices.BitcoinHelpers;
 using Lykke.Service.BcnReports.Core.AddressTransactionReport;
+using Lykke.Service.BcnReports.Core.Xlsx;
 using OfficeOpenXml;
 
 namespace Lykke.Service.BcnReports.Services.Xlsx

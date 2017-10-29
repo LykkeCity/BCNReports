@@ -8,7 +8,7 @@ using Lykke.Service.BcnReports.Core.Address;
 using Lykke.Service.BcnReports.Core.Settings;
 using Newtonsoft.Json;
 
-namespace LkeServices.Address
+namespace Lykke.Service.BcnReports.Services.Address
 {
     #region NinjaContracts
 

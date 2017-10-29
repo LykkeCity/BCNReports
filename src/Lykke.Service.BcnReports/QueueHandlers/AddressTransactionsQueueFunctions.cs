@@ -38,6 +38,10 @@ namespace Lykke.Service.BcnReports.QueueHandlers
         {
             try
             {
+                await _log.WriteMonitorAsync(nameof(AddressTransactionsQueueFunctions), 
+                    nameof(CreateReport),
+                    command.ToJson(), "Started");
+
                 await _addressTransactionsReportMetadataRepository.SetProcessing(command.Address);
                 var reportDate = DateTime.UtcNow;
 
@@ -60,9 +64,9 @@ namespace Lykke.Service.BcnReports.QueueHandlers
 
                 await _addressTransactionsReportMetadataRepository.SetDone(command.Address, saveResult.Url);
 
-                await _log.WriteInfoAsync(nameof(AddressTransactionsQueueFunctions), 
+                await _log.WriteMonitorAsync(nameof(AddressTransactionsQueueFunctions),
                     nameof(CreateReport),
-                    command.ToJson(), "Report proceeded");
+                    command.ToJson(), "Done");
             }
             catch (Exception e)
             {

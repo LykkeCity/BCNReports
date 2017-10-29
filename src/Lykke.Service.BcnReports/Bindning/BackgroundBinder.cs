@@ -1,5 +1,4 @@
 ﻿using Autofac;
-using BackGroundJobs.QueueHandlers;
 using Common.Log;
 using Lykke.JobTriggers.Extenstions;
 using Lykke.Service.BcnReports.Core.Settings;
