@@ -44,6 +44,11 @@ namespace Lykke.Service.BcnReports.Controllers
                 return CommandResultBuilder.Fail(ModelState.GetErrorsList().ToArray());
             }
 
+            if (!input.Blocks.Any())
+            {
+                return CommandResultBuilder.Fail("0 block count");
+            }
+
             if (input.Blocks.Length > _bcnReportsSettings.MaxBlockCountPerCommand)
             {
                 return CommandResultBuilder.Fail($"Maximum block count per request exceeded: {_bcnReportsSettings.MaxBlockCountPerCommand}");
