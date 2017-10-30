@@ -92,7 +92,7 @@ namespace Lykke.Service.BcnReports.Models
         public string FileUrl { get; set; }
 
         public string Status { get; set; }
-        public string BlockId { get; set; }
+        public string Block { get; set; }
         public string LastError { get; set; }
 
         public DateTime? Started { get; set; }
@@ -103,7 +103,7 @@ namespace Lykke.Service.BcnReports.Models
         {
             return new BlockReportMetadataViewModel
             {
-                BlockId = source.Id,
+                Block = source.Id,
                 FileUrl = source.FileUrl,
                 Finished = source.Finished,
                 Status = source.Status.ToString(),
