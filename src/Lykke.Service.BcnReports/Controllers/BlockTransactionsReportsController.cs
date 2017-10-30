@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Common;
 using LkeServices.BitcoinHelpers;
 using Lykke.Service.BcnReports.Core.Queue;
 using Lykke.Service.BcnReports.Core.ReportMetadata;
@@ -40,14 +41,20 @@ namespace Lykke.Service.BcnReports.Controllers
                 return CommandResultBuilder.Fail(ModelState.GetErrorsList().ToArray());
             }
 
-            if (!await IsBlock(input.Block))
+            var blockExistence = await input.Blocks.SelectAsync(IsBlock);
+
+            if (blockExistence.Any(p => !p.exists))
             {
-                return CommandResultBuilder.Fail($"Block {input.Block} not found");
+                var notFoundBlocks = blockExistence.Where(p => !p.exists).Select(p => p.block);
+                return CommandResultBuilder.Fail($"Blocks {string.Join(", ", notFoundBlocks)} not found");
             }
 
-            await _reportMetadataRepository.InsertOrReplace(ReportMetadata.Create(input.Block, queuedAt: DateTime.UtcNow));
-            await _commandProducer.CreateCommand(input.Block, input.Email);
-            
+            foreach (var block in input.Blocks) {
+                await _reportMetadataRepository.InsertOrReplace(ReportMetadata.Create(block, queuedAt: DateTime.UtcNow));
+                await _commandProducer.CreateCommand(block, input.Email);            
+            }
+
+
             return CommandResultBuilder.Ok();
         }
 
@@ -67,17 +74,18 @@ namespace Lykke.Service.BcnReports.Controllers
             return result != null ? BlockReportMetadataViewModel.Create(result) : null;
         }
 
-        private async Task<bool> IsBlock(string blockFeature)
+        private async Task<(string block, bool exists)> IsBlock(string blockFeature)
         {
             try
             {
                 var block = await _bitNinjaClient.GetBlock(BlockFeature.Parse(blockFeature), headerOnly: true);
-                return block != null;
+                return (blockFeature, block != null);
             }
             catch (Exception)
             {
-                return false;
+                return (blockFeature, false);
             }
         }
+        
     }
 }

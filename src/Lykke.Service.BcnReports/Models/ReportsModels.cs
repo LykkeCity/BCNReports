@@ -27,7 +27,7 @@ namespace Lykke.Service.BcnReports.Models
     public class BlockTransactionsReportsRequest
     {
         [Required]
-        public string Block { get; set; }
+        public string[] Blocks { get; set; }
 
         [EmailAddress]
         public string Email { get; set; }
