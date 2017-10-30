@@ -62,9 +62,10 @@ namespace Lykke.Service.BcnReports.Controllers
                 return CommandResultBuilder.Fail($"Blocks {string.Join(", ", notFoundBlocks)} not found");
             }
 
+            await _commandProducer.CreateCommand(input.Blocks, input.Email);
+
             foreach (var block in input.Blocks) {
-                await _reportMetadataRepository.InsertOrReplace(ReportMetadata.Create(block, queuedAt: DateTime.UtcNow));
-                await _commandProducer.CreateCommand(block, input.Email);            
+                await _reportMetadataRepository.InsertOrReplace(ReportMetadata.Create(block, queuedAt: DateTime.UtcNow));  
             }
 
 

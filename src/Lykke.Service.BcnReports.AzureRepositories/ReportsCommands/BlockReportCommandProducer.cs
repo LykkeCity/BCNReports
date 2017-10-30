@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using AzureStorage.Queue;
 using Common;
 using Lykke.Service.BcnReports.Core.Queue;
@@ -13,12 +15,12 @@ namespace Lykke.Service.BcnReports.AzureRepositories.ReportsCommands
         {
             _queue = queue;
         }
-
-        public async Task CreateCommand(string blockId, string email)
+        
+        public async Task CreateCommand(IEnumerable<string> blocks, string email)
         {
             var msg = new BlockTransactionReportQueueCommand
             {
-                BlockId = blockId,
+                Blocks = blocks.ToArray(),
                 Email = email
             };
 

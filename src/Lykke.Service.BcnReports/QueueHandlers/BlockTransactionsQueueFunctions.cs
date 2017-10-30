@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Common;
 using Common.Log;
@@ -40,27 +41,23 @@ namespace Lykke.Service.BcnReports.QueueHandlers
                 await _log.WriteMonitorAsync(nameof(BlockTransactionsQueueFunctions),
                     nameof(CreateReport),
                     command.ToJson(), "Started");
-
-                await _metadataRepository.SetProcessing(command.BlockId);
+                
                 var reportDate = DateTime.UtcNow;
 
-                var reportData = await _reportService.GetTransactionsReport(command.BlockId);
-
-
-                var saveResult = await _reportStorage.Save(command.BlockId, reportData);
-
-                var emailMes = new EmailMessage
-                {
-                    Subject = $"Report for block {command.BlockId} at {reportDate:f}",
-                    TextBody = $"Report for block {command.BlockId} at {reportDate:f} - {saveResult.Url}",
-                };
+                var saveResults = await command.Blocks.SelectAsync(SaveReport);
 
                 if (!string.IsNullOrEmpty(command.Email))
                 {
+
+                    var reportDescrpt = saveResults.Select(p => $"Report for blocks at {reportDate:f} - {p.saveResult.Url}");
+                    var emailMes = new EmailMessage
+                    {
+                        Subject = $"Report for block {command.Blocks} at {reportDate:f}",
+                        HtmlBody = string.Join("<br/>", reportDescrpt)
+                    };
+
                     await _emailSenderProducer.SendAsync(emailMes, new EmailAddressee{DisplayName = command.Email, EmailAddress = command.Email});
                 }
-
-                await _metadataRepository.SetDone(command.BlockId, saveResult.Url);
 
                 await _log.WriteMonitorAsync(nameof(BlockTransactionsQueueFunctions),
                     nameof(CreateReport),
@@ -68,11 +65,44 @@ namespace Lykke.Service.BcnReports.QueueHandlers
             }
             catch (Exception e)
             {
-                await _log.WriteFatalErrorAsync(nameof(BlockTransactionsQueueFunctions), 
+                await _log.WriteErrorAsync(nameof(BlockTransactionsQueueFunctions), 
                     nameof(CreateReport),
                     command.ToJson(), e);
+                throw;
+            }
+        }
 
-                await _metadataRepository.SetError(command.BlockId, e.ToString());
+        private async Task<(string block, ISaveResult saveResult)> SaveReport(string block)
+        {
+            try
+            {
+                await _log.WriteMonitorAsync(nameof(SaveReport),
+                    nameof(SaveReport),
+                    block, "Started");
+
+                await _metadataRepository.SetProcessing(block);
+
+                var reportData = await _reportService.GetTransactionsReport(block);
+
+
+                var saveResult = await _reportStorage.Save(block, reportData);
+
+
+                await _metadataRepository.SetDone(block, saveResult.Url);
+
+                await _log.WriteMonitorAsync(nameof(BlockTransactionsQueueFunctions),
+                    nameof(SaveReport),
+                    block, "Done");
+
+                return (block, saveResult);
+            }
+            catch (Exception e)
+            {
+                await _log.WriteErrorAsync(nameof(BlockTransactionsQueueFunctions),
+                    nameof(CreateReport),
+                    block, e);
+
+                await _metadataRepository.SetError(block, e.ToString());
                 throw;
             }
         }
