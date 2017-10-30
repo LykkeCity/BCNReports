@@ -22,6 +22,9 @@ namespace Lykke.Service.BcnReports.Core.Settings
 
         [Optional]
         public int TimeoutMinutesOnGettingNinjaTransactionsList { get; set; } = 5;
+
+        [Optional]
+        public int MaxBlockCountPerCommand { get; set; } = 100;
     }
 
     public class DbSettings

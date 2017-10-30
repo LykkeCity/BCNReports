@@ -22,14 +22,17 @@ namespace Lykke.Service.BcnReports.Controllers
         private readonly IBlockReportCommandProducer _commandProducer;
         private readonly IBlockTransactionsReportMetadataRepository _reportMetadataRepository;
         private readonly QBitNinjaClient _bitNinjaClient;
+        private readonly BcnReportsSettings _bcnReportsSettings;
 
         public BlockTransactionsReportsController(IBlockReportCommandProducer commandProducer,
             IBlockTransactionsReportMetadataRepository reportMetadataRepository, 
-            QBitNinjaClient bitNinjaClient)
+            QBitNinjaClient bitNinjaClient, 
+            BcnReportsSettings bcnReportsSettings)
         {
             _commandProducer = commandProducer;
             _reportMetadataRepository = reportMetadataRepository;
             _bitNinjaClient = bitNinjaClient;
+            _bcnReportsSettings = bcnReportsSettings;
         }
 
 
@@ -41,7 +44,12 @@ namespace Lykke.Service.BcnReports.Controllers
                 return CommandResultBuilder.Fail(ModelState.GetErrorsList().ToArray());
             }
 
-            var blockExistence = await input.Blocks.SelectAsync(IsBlock);
+            if (input.Blocks.Length > _bcnReportsSettings.MaxBlockCountPerCommand)
+            {
+                return CommandResultBuilder.Fail($"Maximum block count per request exceeded: {_bcnReportsSettings.MaxBlockCountPerCommand}");
+            }
+
+            var blockExistence = (await input.Blocks.SelectAsync(IsBlock)).ToList();
 
             if (blockExistence.Any(p => !p.exists))
             {
