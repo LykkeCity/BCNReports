@@ -87,7 +87,7 @@ namespace Lykke.Service.BcnReports.QueueHandlers
                 var reportData = await _reportService.GetTransactionsReport(block);
 
 
-                var saveResult = await _reportStorage.Save(block, reportData);
+                var saveResult = await _reportStorage.SaveXlsxReport(block, reportData);
 
 
                 await _metadataRepository.SetDone(block, saveResult.Url);

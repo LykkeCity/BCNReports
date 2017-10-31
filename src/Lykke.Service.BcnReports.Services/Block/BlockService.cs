@@ -19,12 +19,15 @@ namespace Lykke.Service.BcnReports.Services.Block
         private readonly SemaphoreSlim _globalSemaphore;
         private readonly INinjaClientFactory _bitNinjaClient;
         private readonly ILog _log;
+        private readonly IConsole _console;
 
         public BlockService(BcnReportsSettings bcnReportsSettings,
-            INinjaClientFactory bitNinjaClient, ILog log)
+            INinjaClientFactory bitNinjaClient, ILog log,
+            IConsole console)
         {
             _bitNinjaClient = bitNinjaClient;
             _log = log;
+            _console = console;
 
             _globalSemaphore = new SemaphoreSlim(bcnReportsSettings.NinjaBlocksMaxConcurrentRequestCount);
         }
@@ -34,8 +37,7 @@ namespace Lykke.Service.BcnReports.Services.Block
             try
             {
                 await _globalSemaphore.WaitAsync();
-
-                await _log.WriteMonitorAsync(nameof(BlockService), nameof(GetBlock), $"{id} started");
+                _console.WriteLine($"{nameof(BlockService)}.{nameof(GetBlock)} started {id}");
 
                 return await Retry.Try(() => _bitNinjaClient.GetClient().GetBlock(id).WithTimeout(60*1000),
                     component:nameof(GetBlock),
@@ -52,7 +54,7 @@ namespace Lykke.Service.BcnReports.Services.Block
             {
                 _globalSemaphore.Release(1);
 
-                await _log.WriteMonitorAsync(nameof(BlockService), nameof(GetBlock), $"{id} done");
+                _console.WriteLine($"{nameof(BlockService)}.{nameof(GetBlock)} done {id}");
             }
         }
     }

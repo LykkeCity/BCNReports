@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using AzureStorage;
 using Common.Log;
+using Lykke.Service.BcnReports.AzureRepositories.Helpers;
 using Lykke.Service.BcnReports.Core.ReportStorage;
 
 namespace AzureRepositories.ReportStorage
@@ -42,14 +43,15 @@ namespace AzureRepositories.ReportStorage
             _blobStorage = blobStorage;
         }
 
-        public async Task<ISaveResult> Save(string address, Stream data)
+        public async Task<ISaveResult> SaveXlsxReport(string address, Stream data)
         {
             data.Position = 0;
 
             var key = GetKeyName(address);
-            await _blobStorage.SaveBlobAsync(_container, key, data);
+           await _blobStorage.SaveBlobAsync(_container, key, data);
+            
+            var url = await Retry.Try(() => _blobStorage.SaveBlobAsync(_container, key, data), nameof(SaveXlsxReport), 5, logger:_log, secondsToWaitOnFail: 2);
 
-            var url = _blobStorage.GetBlobUrl(_container, key);
             return SaveResult.Ok(url);
         }
 

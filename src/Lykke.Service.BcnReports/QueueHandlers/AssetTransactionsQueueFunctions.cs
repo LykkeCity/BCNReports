@@ -47,7 +47,7 @@ namespace Lykke.Service.BcnReports.QueueHandlers
                 var reportData = await _reportService.GetTransactionsReport(command.AssetId);
 
 
-                var saveResult = await _reportStorage.Save(command.AssetId, reportData);
+                var saveResult = await _reportStorage.SaveXlsxReport(command.AssetId, reportData);
 
                 var emailMes = new EmailMessage
                 {

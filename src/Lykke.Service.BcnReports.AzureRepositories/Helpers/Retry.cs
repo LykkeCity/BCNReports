@@ -28,7 +28,7 @@ namespace Lykke.Service.BcnReports.AzureRepositories.Helpers
 
                     if (logger != null)
                     {
-                        await logger.WriteMonitorAsync(component, "ReTry", null, ex.Message);
+                        await logger.WriteWarningAsync(component, "ReTry", null, ex.Message);
                     }
                     await Task.Delay(secondsToWaitOnFail * 1000);
                 }

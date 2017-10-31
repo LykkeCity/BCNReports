@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Common.Extensions;
 using Common.Log;
 using Lykke.Service.BcnReports.AzureRepositories.Helpers;
+using Lykke.Service.BcnReports.Core.Console;
 using Lykke.Service.BcnReports.Core.NinjaClient;
 using Lykke.Service.BcnReports.Core.Settings;
 using Lykke.Service.BcnReports.Core.Transaction;
@@ -21,13 +22,15 @@ namespace Lykke.Service.BcnReports.Services.Transaction
         private readonly SemaphoreSlim _globalSemaphore;
         private readonly INinjaClientFactory _qBitNinjaClient;
         private readonly ILog _log;
+        private readonly IConsole _console;
 
         public TransactionService(BcnReportsSettings bcnReportsSettings,
             INinjaClientFactory qBitNinjaClient, 
-            ILog log)
+            ILog log, IConsole console)
         {
             _qBitNinjaClient = qBitNinjaClient;
             _log = log;
+            _console = console;
 
             _globalSemaphore = new SemaphoreSlim(bcnReportsSettings.NinjaTransactionsMaxConcurrentRequestCount);
         }
@@ -47,13 +50,11 @@ namespace Lykke.Service.BcnReports.Services.Transaction
                         tryCount: 10,
                         logger: _log,
                         secondsToWaitOnFail: 5)
-                    .ContinueWith(async p =>
+                    .ContinueWith(p =>
                     {
                         try
                         {
-                            await _log.WriteMonitorAsync(nameof(GetTransactions), 
-                                nameof(TransactionService),
-                                $"Retrieve {txId} done");
+                            _console.WriteConsoleLog(nameof(GetTransactions), nameof(TransactionService), $"Retrieve {txId} done");
                             txResps.Add(p.Result);
                         }
                         finally
