@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Common;
 using Common.Log;
 using Lykke.JobTriggers.Triggers.Attributes;
+using Lykke.Service.BcnReports.AzureRepositories.Helpers;
 using Lykke.Service.BcnReports.Core.BlockTransactionsReport;
 using Lykke.Service.BcnReports.Core.Queue;
 using Lykke.Service.BcnReports.Core.ReportMetadata;
@@ -44,7 +45,7 @@ namespace Lykke.Service.BcnReports.QueueHandlers
                 
                 var reportDate = DateTime.UtcNow;
 
-                var saveResults = await command.Blocks.SelectAsync(SaveReport);
+                var saveResults = await command.Blocks.SelectAsync(p=> Retry.Try(()=> SaveReport(p), nameof(CreateReport), 5, logger:_log));
 
 
                 if (!string.IsNullOrEmpty(command.Email))
