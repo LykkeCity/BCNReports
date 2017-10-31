@@ -84,7 +84,7 @@ namespace Lykke.Service.BcnReports.QueueHandlers
 
                 var meta = await _metadataRepository.Get(block);
 
-                if (meta.FileUrl != null)
+                if (meta?.FileUrl != null)
                 {
                     return (block, meta.FileUrl);
                 }

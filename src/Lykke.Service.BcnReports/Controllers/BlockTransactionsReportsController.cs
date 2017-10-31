@@ -77,15 +77,15 @@ namespace Lykke.Service.BcnReports.Controllers
         }
 
         [HttpPost("range")]
-        public async Task<CommandResult> CreateRangeReport([FromQuery]int minBlock, [FromQuery]int maxBlock)
+        public async Task<CommandResult> CreateRangeReport([FromQuery]int minBlock, [FromQuery]int maxBlock, [FromQuery]int batch = 1)
         {
             var list = Enumerable.Range(minBlock, maxBlock - minBlock + 1);
 
-            foreach (var bath in list.Batch(10))
+            foreach (var enumerable in list.Batch(batch))
             {
 
-                await _commandProducer.CreateCommand(bath.Select(p => p.ToString()), null);
-                foreach (var block in bath)
+                await _commandProducer.CreateCommand(enumerable.Select(p => p.ToString()), null);
+                foreach (var block in enumerable)
                 {
                     await _reportMetadataRepository.InsertOrReplace(ReportMetadata.Create(block.ToString(), queuedAt: DateTime.UtcNow));
                 }
