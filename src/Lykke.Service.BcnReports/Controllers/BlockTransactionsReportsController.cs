@@ -76,7 +76,7 @@ namespace Lykke.Service.BcnReports.Controllers
             return CommandResultBuilder.Ok();
         }
 
-        [HttpPost]
+        [HttpPost("range")]
         public async Task<CommandResult> CreateRangeReport([FromQuery]int minBlock, int maxBlock)
         {
             var list = Enumerable.Range(minBlock, maxBlock - minBlock + 1);
