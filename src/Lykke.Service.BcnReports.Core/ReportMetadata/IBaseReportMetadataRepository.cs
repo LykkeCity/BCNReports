@@ -6,7 +6,7 @@ namespace Lykke.Service.BcnReports.Core.ReportMetadata
 {
     public interface IBaseReportMetadata
     {
-        string FileUrl { get; }
+        string FileUrl { get; set; }
 
         ReportStatus Status { get; }
 

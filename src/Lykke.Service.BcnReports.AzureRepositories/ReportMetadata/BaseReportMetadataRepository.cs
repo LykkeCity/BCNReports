@@ -50,7 +50,7 @@ namespace Lykke.Service.BcnReports.AzureRepositories.ReportMetadata
 
     public abstract class BaseReportMetadataRepository:IBaseReportMetadataRepository
     {
-        private readonly INoSQLTableStorage<BaseReportMetadataEntity> _storage;
+        protected readonly INoSQLTableStorage<BaseReportMetadataEntity> _storage;
 
         protected BaseReportMetadataRepository(INoSQLTableStorage<BaseReportMetadataEntity> storage)
         {
@@ -68,7 +68,7 @@ namespace Lykke.Service.BcnReports.AzureRepositories.ReportMetadata
             return await _storage.GetDataAsync(BaseReportMetadataEntity.GeneratePartitionKey());
         }
 
-        public Task InsertOrReplace(IBaseReportMetadata reportMetadata)
+        public virtual Task InsertOrReplace(IBaseReportMetadata reportMetadata)
         {
             return _storage.InsertOrReplaceAsync(BaseReportMetadataEntity.Create(reportMetadata));
         }

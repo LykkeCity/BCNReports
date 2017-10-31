@@ -51,7 +51,7 @@ namespace Lykke.Service.BcnReports.QueueHandlers
                 if (!string.IsNullOrEmpty(command.Email))
                 {
 
-                    var reportDescrpt = saveResults.Select(p => $"Report for blocks at {reportDate:f} - {p.saveResult.Url}");
+                    var reportDescrpt = saveResults.Select(p => $"Report for blocks at {reportDate:f} - {p.url}");
                     var emailMes = new EmailMessage
                     {
                         Subject = $"Report for block {command.Blocks} at {reportDate:f}",
@@ -74,13 +74,20 @@ namespace Lykke.Service.BcnReports.QueueHandlers
             }
         }
 
-        private async Task<(string block, ISaveResult saveResult)> SaveReport(string block)
+        private async Task<(string block, string url)> SaveReport(string block)
         {
             try
             {
                 await _log.WriteMonitorAsync(nameof(SaveReport),
                     nameof(SaveReport),
                     block, "Started");
+
+                var meta = await _metadataRepository.Get(block);
+
+                if (meta.FileUrl != null)
+                {
+                    return (block, meta.FileUrl);
+                }
 
                 await _metadataRepository.SetProcessing(block);
 
@@ -96,7 +103,7 @@ namespace Lykke.Service.BcnReports.QueueHandlers
                     nameof(SaveReport),
                     block, "Done");
 
-                return (block, saveResult);
+                return (block, saveResult.Url);
             }
             catch (Exception e)
             {
