@@ -4,12 +4,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using Common;
 using LkeServices.BitcoinHelpers;
+using Lykke.Service.BcnReports.Core.NinjaClient;
 using Lykke.Service.BcnReports.Core.Queue;
 using Lykke.Service.BcnReports.Core.ReportMetadata;
 using Lykke.Service.BcnReports.Core.Settings;
 using Lykke.Service.BcnReports.Models;
 using Lykke.Service.BcnReports.Services.Settings;
 using Microsoft.AspNetCore.Mvc;
+using MoreLinq;
 using QBitNinja.Client;
 using QBitNinja.Client.Models;
 using Web.Helpers;
@@ -21,12 +23,12 @@ namespace Lykke.Service.BcnReports.Controllers
     {
         private readonly IBlockReportCommandProducer _commandProducer;
         private readonly IBlockTransactionsReportMetadataRepository _reportMetadataRepository;
-        private readonly QBitNinjaClient _bitNinjaClient;
+        private readonly INinjaClientFactory _bitNinjaClient;
         private readonly BcnReportsSettings _bcnReportsSettings;
 
         public BlockTransactionsReportsController(IBlockReportCommandProducer commandProducer,
-            IBlockTransactionsReportMetadataRepository reportMetadataRepository, 
-            QBitNinjaClient bitNinjaClient, 
+            IBlockTransactionsReportMetadataRepository reportMetadataRepository,
+            INinjaClientFactory bitNinjaClient, 
             BcnReportsSettings bcnReportsSettings)
         {
             _commandProducer = commandProducer;
@@ -39,6 +41,8 @@ namespace Lykke.Service.BcnReports.Controllers
         [HttpPost]
         public async Task<CommandResult> CreateReport([FromBody]BlockTransactionsReportsRequest input)
         {
+
+
             if (!ModelState.IsValid)
             {
                 return CommandResultBuilder.Fail(ModelState.GetErrorsList().ToArray());
@@ -72,6 +76,26 @@ namespace Lykke.Service.BcnReports.Controllers
             return CommandResultBuilder.Ok();
         }
 
+        [HttpPost]
+        public async Task<CommandResult> CreateRangeReport([FromQuery]int minBlock, int maxBlock)
+        {
+            var list = Enumerable.Range(minBlock, maxBlock - minBlock + 1);
+
+            foreach (var bath in list.Batch(10))
+            {
+
+                await _commandProducer.CreateCommand(bath.Select(p => p.ToString()), null);
+                foreach (var block in bath)
+                {
+                    await _reportMetadataRepository.InsertOrReplace(ReportMetadata.Create(block.ToString(), queuedAt: DateTime.UtcNow));
+                }
+            }
+
+
+            return CommandResultBuilder.Ok();
+        }
+
+
         [HttpGet]
         public async Task<IEnumerable<BlockReportMetadataViewModel>> GetReports()
         {
@@ -92,7 +116,7 @@ namespace Lykke.Service.BcnReports.Controllers
         {
             try
             {
-                var block = await _bitNinjaClient.GetBlock(BlockFeature.Parse(blockFeature), headerOnly: true);
+                var block = await _bitNinjaClient.GetClient().GetBlock(BlockFeature.Parse(blockFeature), headerOnly: true);
                 return (blockFeature, block != null);
             }
             catch (Exception)

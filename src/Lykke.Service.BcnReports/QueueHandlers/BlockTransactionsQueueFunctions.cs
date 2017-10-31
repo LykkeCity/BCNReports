@@ -46,6 +46,7 @@ namespace Lykke.Service.BcnReports.QueueHandlers
 
                 var saveResults = await command.Blocks.SelectAsync(SaveReport);
 
+
                 if (!string.IsNullOrEmpty(command.Email))
                 {
 

@@ -6,7 +6,7 @@ namespace Lykke.Service.BcnReports.AzureRepositories.Helpers
 {
     public class Retry
     {
-        public static async Task<T> Try<T>(Func<Task<T>> action,  int tryCount, Func<Exception, bool> exceptionFilter = null, ILog logger = null, int secondsToWaitOnFail = 0)
+        public static async Task<T> Try<T>(Func<Task<T>> action, string component, int tryCount, Func<Exception, bool> exceptionFilter = null, ILog logger = null, int secondsToWaitOnFail = 0)
         {
             int @try = 0;
             if (exceptionFilter == null)
@@ -28,7 +28,7 @@ namespace Lykke.Service.BcnReports.AzureRepositories.Helpers
 
                     if (logger != null)
                     {
-                        await logger.WriteErrorAsync("Retry", "Try", null, ex);
+                        await logger.WriteMonitorAsync(component, "ReTry", null, ex.Message);
                     }
                     await Task.Delay(secondsToWaitOnFail * 1000);
                 }

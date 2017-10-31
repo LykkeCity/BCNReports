@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using Common.Cache;
 using Flurl;
 using Flurl.Http;
 using Lykke.Service.BcnReports.Core.Asset;
@@ -85,24 +87,68 @@ namespace LkeServices.Asset
     public class AssetDefinitionService:IAssetDefinitionService
     {
         private readonly BcnReportsSettings _bcnReportsSettings;
+        private readonly ICacheManager _cacheManager;
+        private const string CacheKey = "asset-def";
 
-        public AssetDefinitionService(BcnReportsSettings bcnReportsSettings)
+        private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1);
+
+        public AssetDefinitionService(BcnReportsSettings bcnReportsSettings, ICacheManager cacheManager)
         {
             _bcnReportsSettings = bcnReportsSettings;
+            _cacheManager = cacheManager;
+        }
+
+        private async Task<IDictionary<string, IAssetDefinition>> RetrieveFromRpc()
+        {
+            try
+            {
+                await _semaphore.WaitAsync(TimeSpan.FromMinutes(3));
+
+                var resp = await _bcnReportsSettings.BlockChainExplolerUrl.AppendPathSegment("/api/assets").GetJsonAsync<List<AssetDefinitionContract>>();
+
+                var result = new Dictionary<string, IAssetDefinition>();
+                foreach (var assetContract in resp)
+                {
+                    var assetResultModel = AssetDefition.Create(assetContract);
+                    foreach (var assetId in assetContract.AssetIds)
+                    {
+                        result[assetId] = assetResultModel;
+                    }
+                }
+
+                return result;
+
+            }
+            finally
+            {
+                _semaphore.Release(1);
+            }
+
+        }
+
+        private IDictionary<string, IAssetDefinition> GetFromCache()
+        {
+            if (_cacheManager.IsSet(CacheKey))
+            {
+                return _cacheManager.Get<IDictionary<string, IAssetDefinition>>(CacheKey);
+            }
+
+            return null;
+        }
+
+        private void SetCache(IDictionary<string, IAssetDefinition> dictionary)
+        {
+            _cacheManager.Set(CacheKey, dictionary, int.MaxValue);
         }
 
         public async Task<IDictionary<string, IAssetDefinition>> GetAssetDefinitionsAsync()
         {
-            var resp = await _bcnReportsSettings.BlockChainExplolerUrl.AppendPathSegment("/api/assets").GetJsonAsync<List<AssetDefinitionContract>>();
+            var result = GetFromCache();
 
-            var result = new Dictionary<string, IAssetDefinition>();
-            foreach (var assetContract in resp)
+            if (result == null)
             {
-                var assetResultModel = AssetDefition.Create(assetContract);
-                foreach (var assetId in assetContract.AssetIds)
-                {
-                    result[assetId] = assetResultModel;
-                }
+                result = await RetrieveFromRpc();
+                SetCache(result);
             }
 
             return result;

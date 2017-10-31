@@ -1,11 +1,14 @@
 ﻿using Autofac;
+using Common.Cache;
 using Common.Log;
 using LkeServices.Asset;
 using Lykke.Service.BcnReports.Core.Address;
 using Lykke.Service.BcnReports.Core.AddressTransactionReport;
 using Lykke.Service.BcnReports.Core.Asset;
 using Lykke.Service.BcnReports.Core.AssetTransactionReport;
+using Lykke.Service.BcnReports.Core.Block;
 using Lykke.Service.BcnReports.Core.BlockTransactionsReport;
+using Lykke.Service.BcnReports.Core.NinjaClient;
 using Lykke.Service.BcnReports.Core.Services;
 using Lykke.Service.BcnReports.Core.Settings;
 using Lykke.Service.BcnReports.Core.Transaction;
@@ -13,7 +16,9 @@ using Lykke.Service.BcnReports.Core.Xlsx;
 using Lykke.Service.BcnReports.Services.Address;
 using Lykke.Service.BcnReports.Services.AddressTransactionReport;
 using Lykke.Service.BcnReports.Services.AssetTransactionReport;
+using Lykke.Service.BcnReports.Services.Block;
 using Lykke.Service.BcnReports.Services.BlockTransactionsReport;
+using Lykke.Service.BcnReports.Services.NinjaClient;
 using Lykke.Service.BcnReports.Services.Settings;
 using Lykke.Service.BcnReports.Services.Transaction;
 using Lykke.Service.BcnReports.Services.Xlsx;
@@ -27,10 +32,11 @@ namespace Lykke.Service.BcnReports.Services
     {
         public static void BindCommonServices(this ContainerBuilder ioc, GeneralSettings settings, ILog log)
         {
-            ioc.RegisterType<AssetDefinitionService>().As<IAssetDefinitionService>();
+            ioc.Register(p=>new AssetDefinitionService(settings.BcnReports, new MemoryCacheManager())).As<IAssetDefinitionService>().SingleInstance();
             ioc.RegisterType<AssetTransactionsesService>().As<IAssetTransactionsService>();
             ioc.RegisterType<TransactionXlsxRenderer>().As<ITransactionXlsxRenderer>();
             ioc.RegisterType<TransactionService>().As<ITransactionService>().SingleInstance();
+            ioc.RegisterType<BlockService>().As<IBlockService>().SingleInstance();
             ioc.RegisterType<AddressService>().As<IAddressService>();
             ioc.RegisterType<AddressTransactionReportService>().As<IAddressTransactionReportService>();
             ioc.RegisterType<AssetTransactionsReportService>().As<IAssetTransactionsReportService>();
@@ -43,7 +49,7 @@ namespace Lykke.Service.BcnReports.Services
 
             ioc.Register(p => new EmailSenderClient(settings.EmailSender.ServiceUrl, log)).AsSelf();
 
-            ioc.Register(p => new QBitNinjaClient(settings.BcnReports.NinjaUrl, settings.BcnReports.UsedNetwork()){Colored = true});
+            ioc.RegisterType<NinjaClientFactory>().As<INinjaClientFactory>().SingleInstance();
         }
     }
 }

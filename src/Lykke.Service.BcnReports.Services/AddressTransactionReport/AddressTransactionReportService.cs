@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Common.Extensions;
 using Common.Log;
 using Lykke.Service.BcnReports.AzureRepositories.Helpers;
 using Lykke.Service.BcnReports.Core.Address;
@@ -43,7 +44,8 @@ namespace Lykke.Service.BcnReports.Services.AddressTransactionReport
         public async Task<Stream> GetTransactionsReport(string addressId)
         {
             var assetDefinitionDictionary = _assetDefinitionService.GetAssetDefinitionsAsync();
-            var addressTransactionIds = Retry.Try(() => GetAddressTransactions(addressId), 
+            var addressTransactionIds = Retry.Try(() => GetAddressTransactions(addressId).WithTimeout(60 * 1000),
+                component: nameof(GetAddressTransactions),
                 tryCount: 10,
                 secondsToWaitOnFail: 5,
                 logger: _log);

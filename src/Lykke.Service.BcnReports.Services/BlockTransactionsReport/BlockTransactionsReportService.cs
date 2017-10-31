@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Lykke.Service.BcnReports.Core.Asset;
+using Lykke.Service.BcnReports.Core.Block;
 using Lykke.Service.BcnReports.Core.BlockTransactionsReport;
 using Lykke.Service.BcnReports.Core.Transaction;
 using Lykke.Service.BcnReports.Core.Xlsx;
@@ -17,28 +18,28 @@ namespace Lykke.Service.BcnReports.Services.BlockTransactionsReport
 {
     public class BlockTransactionsReportService: IBlockTransactionsReportService
     {
-        private readonly QBitNinjaClient _bitNinjaClient;
+        private readonly IBlockService _blockService;
         private readonly IAssetDefinitionService _assetDefinitionService;
         private readonly ITransactionService _transactionService;
         private readonly ITransactionXlsxRenderer _transactionXlsxRenderer;
         private readonly Network _network;
 
-        public BlockTransactionsReportService(QBitNinjaClient bitNinjaClient, 
+        public BlockTransactionsReportService(
             IAssetDefinitionService assetDefinitionService, 
             ITransactionService transactionService,
             ITransactionXlsxRenderer transactionXlsxRenderer, 
-            Network network)
-        {
-            _bitNinjaClient = bitNinjaClient;
+            Network network, IBlockService blockService)
+        { 
             _assetDefinitionService = assetDefinitionService;
             _transactionService = transactionService;
             _transactionXlsxRenderer = transactionXlsxRenderer;
             _network = network;
+            _blockService = blockService;
         }
 
         public async Task<Stream> GetTransactionsReport(string blockId)
         {
-            var getBlock = _bitNinjaClient.GetBlock(BlockFeature.Parse(blockId));
+            var getBlock = _blockService.GetBlock(BlockFeature.Parse(blockId));
             var getAssetDefDictionary = _assetDefinitionService.GetAssetDefinitionsAsync();
 
             await Task.WhenAll(getBlock, getAssetDefDictionary);

@@ -17,8 +17,11 @@ namespace Lykke.Service.BcnReports.Core.Settings
 
         public string BlockChainExplolerUrl { get; set; }
 
+        [Optional]
+        public int NinjaTransactionsMaxConcurrentRequestCount { get; set; } = 10;
 
-        public int NinjaTransactionsMaxConcurrentRequestCount { get; set; }
+        [Optional]
+        public int NinjaBlocksMaxConcurrentRequestCount { get; set; } = 10;
 
         [Optional]
         public int TimeoutMinutesOnGettingNinjaTransactionsList { get; set; } = 5;
