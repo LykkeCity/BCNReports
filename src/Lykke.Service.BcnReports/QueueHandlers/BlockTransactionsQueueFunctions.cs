@@ -86,6 +86,7 @@ namespace Lykke.Service.BcnReports.QueueHandlers
 
                 if (meta?.FileUrl != null)
                 {
+                    await _metadataRepository.SetDone(block, meta.FileUrl);
                     return (block, meta.FileUrl);
                 }
 
