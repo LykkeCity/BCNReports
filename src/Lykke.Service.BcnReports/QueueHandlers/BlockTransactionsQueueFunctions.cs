@@ -82,6 +82,8 @@ namespace Lykke.Service.BcnReports.QueueHandlers
                     nameof(SaveReport),
                     block, "Started");
 
+                await _metadataRepository.SetProcessing(block);
+
                 var meta = await _metadataRepository.Get(block);
 
                 if (meta?.FileUrl != null)
@@ -89,9 +91,6 @@ namespace Lykke.Service.BcnReports.QueueHandlers
                     await _metadataRepository.SetDone(block, meta.FileUrl);
                     return (block, meta.FileUrl);
                 }
-
-                await _metadataRepository.SetProcessing(block);
-
                 var reportData = await _reportService.GetTransactionsReport(block);
 
 
