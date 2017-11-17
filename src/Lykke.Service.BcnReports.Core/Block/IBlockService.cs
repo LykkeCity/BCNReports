@@ -8,6 +8,6 @@ namespace Lykke.Service.BcnReports.Core.Block
 {
     public interface IBlockService
     {
-        Task<GetBlockResponse> GetBlock(BlockFeature id);
+        Task<GetBlockResponse> GetBlock(BlockFeature id, bool headerOnly = false);
     }
 }
