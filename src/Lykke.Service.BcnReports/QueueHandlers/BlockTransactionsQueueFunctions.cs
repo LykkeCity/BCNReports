@@ -39,7 +39,7 @@ namespace Lykke.Service.BcnReports.QueueHandlers
         {
             try
             {
-                await _log.WriteMonitorAsync(nameof(BlockTransactionsQueueFunctions),
+                await _log.WriteInfoAsync(nameof(BlockTransactionsQueueFunctions),
                     nameof(CreateReport),
                     command.ToJson(), "Started");
                 
@@ -61,7 +61,7 @@ namespace Lykke.Service.BcnReports.QueueHandlers
                     await _emailSenderProducer.SendAsync(emailMes, new EmailAddressee{DisplayName = command.Email, EmailAddress = command.Email});
                 }
 
-                await _log.WriteMonitorAsync(nameof(BlockTransactionsQueueFunctions),
+                await _log.WriteInfoAsync(nameof(BlockTransactionsQueueFunctions),
                     nameof(CreateReport),
                     command.ToJson(), "Done");
             }
@@ -78,7 +78,7 @@ namespace Lykke.Service.BcnReports.QueueHandlers
         {
             try
             {
-                await _log.WriteMonitorAsync(nameof(SaveReport),
+                await _log.WriteInfoAsync(nameof(SaveReport),
                     nameof(SaveReport),
                     block, "Started");
 
@@ -99,7 +99,7 @@ namespace Lykke.Service.BcnReports.QueueHandlers
 
                 await _metadataRepository.SetDone(block, saveResult.Url);
 
-                await _log.WriteMonitorAsync(nameof(BlockTransactionsQueueFunctions),
+                await _log.WriteInfoAsync(nameof(BlockTransactionsQueueFunctions),
                     nameof(SaveReport),
                     block, "Done");
 

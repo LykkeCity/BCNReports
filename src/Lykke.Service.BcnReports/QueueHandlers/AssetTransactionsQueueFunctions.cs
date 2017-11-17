@@ -37,7 +37,7 @@ namespace Lykke.Service.BcnReports.QueueHandlers
         {
             try
             {
-                await _log.WriteMonitorAsync(nameof(AssetTransactionsQueueFunctions),
+                await _log.WriteInfoAsync(nameof(AssetTransactionsQueueFunctions),
                     nameof(CreateReport),
                     command.ToJson(), "Started");
 
@@ -62,7 +62,7 @@ namespace Lykke.Service.BcnReports.QueueHandlers
 
                 await _metadataRepository.SetDone(command.AssetId, saveResult.Url);
 
-                await _log.WriteMonitorAsync(nameof(AssetTransactionsQueueFunctions),
+                await _log.WriteInfoAsync(nameof(AssetTransactionsQueueFunctions),
                     nameof(CreateReport),
                     command.ToJson(), "Done");
             }

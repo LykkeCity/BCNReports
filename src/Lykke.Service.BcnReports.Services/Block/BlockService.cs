@@ -32,14 +32,14 @@ namespace Lykke.Service.BcnReports.Services.Block
             _globalSemaphore = new SemaphoreSlim(bcnReportsSettings.NinjaBlocksMaxConcurrentRequestCount);
         }
 
-        public async Task<GetBlockResponse> GetBlock(BlockFeature id)
+        public async Task<GetBlockResponse> GetBlock(BlockFeature id, bool headerOnly)
         {
             try
             {
                 await _globalSemaphore.WaitAsync();
                 _console.WriteLine($"{nameof(BlockService)}.{nameof(GetBlock)} started {id}");
 
-                return await Retry.Try(() => _bitNinjaClient.GetClient().GetBlock(id).WithTimeout(60*1000),
+                return await Retry.Try(() => _bitNinjaClient.GetClient().GetBlock(id, headerOnly).WithTimeout(60*1000),
                     component:nameof(GetBlock),
                     tryCount: 10,
                     logger: _log,

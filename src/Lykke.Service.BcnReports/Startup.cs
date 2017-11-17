@@ -109,7 +109,7 @@ namespace Lykke.Service.BcnReports
                 _triggerHostTask = _triggerHost.Start();
                 await ApplicationContainer.Resolve<IStartupManager>().StartAsync();
 
-                await Log.WriteMonitorAsync("", "", "Started");
+                await Log.WriteInfoAsync("", "", "Started");
             }
             catch (Exception ex)
             {
@@ -145,7 +145,7 @@ namespace Lykke.Service.BcnReports
                 
                 if (Log != null)
                 {
-                    await Log.WriteMonitorAsync("", "", "Terminating");
+                    await Log.WriteInfoAsync("", "", "Terminating");
                 }
                 
                 ApplicationContainer.Dispose();
