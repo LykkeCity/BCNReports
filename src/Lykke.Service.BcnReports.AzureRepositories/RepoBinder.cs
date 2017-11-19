@@ -67,6 +67,9 @@ namespace Lykke.Service.BcnReports.AzureRepositories
 
             ioc.Register(p => new BlockReportCommandProducer(AzureQueueExt.Create(dataReloadingManager, QueueNames.BlockTransactionsReport)))
                 .As<IBlockReportCommandProducer>();
+
+            ioc.Register(p => new BlockRangeReportCommandProducer(AzureQueueExt.Create(dataReloadingManager, QueueNames.BlockTransactionsRangeReport)))
+                .As<IBlockRangeReportCommandProducer>();
         }
     }
 }

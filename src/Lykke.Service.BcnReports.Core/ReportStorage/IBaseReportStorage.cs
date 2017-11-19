@@ -11,6 +11,8 @@ namespace Lykke.Service.BcnReports.Core.ReportStorage
 
     public interface IBaseReportStorage
     {
-        Task<ISaveResult> SaveXlsxReport(string address, Stream data);
+        Task<ISaveResult> SaveXlsxReport(string id, Stream data);
+
+        string GeneratePartition(string id);
     }
 }

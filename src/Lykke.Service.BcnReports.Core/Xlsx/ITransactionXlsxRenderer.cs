@@ -18,7 +18,7 @@ namespace Lykke.Service.BcnReports.Core.Xlsx
 
         DateTime? BlockDate { get; }
 
-        int Index { get; }
+        int? Index { get; }
         string Address { get; }
         string ColoredAddress { get; }
 

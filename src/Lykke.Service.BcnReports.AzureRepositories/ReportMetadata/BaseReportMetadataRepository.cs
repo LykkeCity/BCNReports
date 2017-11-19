@@ -20,7 +20,7 @@ namespace Lykke.Service.BcnReports.AzureRepositories.ReportMetadata
         public DateTime? Started { get; set; }
         public DateTime? Finished { get; set; }
 
-        public static BaseReportMetadataEntity Create(IBaseReportMetadata source)
+        public static BaseReportMetadataEntity Create(IBaseReportMetadata source, string partition)
         {
             return new BaseReportMetadataEntity
             {
@@ -30,16 +30,12 @@ namespace Lykke.Service.BcnReports.AzureRepositories.ReportMetadata
                 LastError = source.LastError,
                 Started = source.Started,
                 Finished = source.Finished,
-                PartitionKey = GeneratePartitionKey(),
+                PartitionKey = partition,
                 RowKey = GenerateRowKey(source.Id),
                 QueuedAt = source.QueuedAt
             };
         }
-
-        public static string GeneratePartitionKey()
-        {
-            return "BCNR";
-        }
+        
 
         public static string GenerateRowKey(string id)
         {
@@ -50,33 +46,33 @@ namespace Lykke.Service.BcnReports.AzureRepositories.ReportMetadata
 
     public abstract class BaseReportMetadataRepository:IBaseReportMetadataRepository
     {
-        protected readonly INoSQLTableStorage<BaseReportMetadataEntity> _storage;
+        protected readonly INoSQLTableStorage<BaseReportMetadataEntity> Storage;
 
         protected BaseReportMetadataRepository(INoSQLTableStorage<BaseReportMetadataEntity> storage)
         {
-            _storage = storage;
+            Storage = storage;
         }
 
-        public async Task<IBaseReportMetadata> Get(string address)
+        public async Task<IBaseReportMetadata> Get(string id)
         {
-            return await _storage.GetDataAsync(BaseReportMetadataEntity.GeneratePartitionKey(),
-                BaseReportMetadataEntity.GenerateRowKey(address));
+            return await Storage.GetDataAsync(GeneratePartitionKey(id),
+                BaseReportMetadataEntity.GenerateRowKey(id));
         }
 
         public async Task<IEnumerable<IBaseReportMetadata>> GetAll()
         {
-            return await _storage.GetDataAsync(BaseReportMetadataEntity.GeneratePartitionKey());
+            return await Storage.GetDataAsync();
         }
 
         public virtual Task InsertOrReplace(IBaseReportMetadata reportMetadata)
         {
-            return _storage.InsertOrReplaceAsync(BaseReportMetadataEntity.Create(reportMetadata));
+            return Storage.InsertOrReplaceAsync(BaseReportMetadataEntity.Create(reportMetadata, GeneratePartitionKey(reportMetadata.Id)));
         }
 
-        public Task SetStatus(string address, ReportStatus status)
+        public Task SetStatus(string id, ReportStatus status)
         {
-            return _storage.ReplaceAsync(BaseReportMetadataEntity.GeneratePartitionKey(),
-                BaseReportMetadataEntity.GenerateRowKey(address),
+            return Storage.ReplaceAsync(GeneratePartitionKey(id),
+                BaseReportMetadataEntity.GenerateRowKey(id),
                 p =>
                 {
                     p.Status = status.ToString();
@@ -85,10 +81,10 @@ namespace Lykke.Service.BcnReports.AzureRepositories.ReportMetadata
                 });
         }
 
-        public Task SetProcessing(string address)
+        public Task SetProcessing(string id)
         {
-            return _storage.ReplaceAsync(BaseReportMetadataEntity.GeneratePartitionKey(),
-                BaseReportMetadataEntity.GenerateRowKey(address),
+            return Storage.ReplaceAsync(GeneratePartitionKey(id),
+                BaseReportMetadataEntity.GenerateRowKey(id),
                 p =>
                 {
                     p.Status = ReportStatus.Processing.ToString();
@@ -98,10 +94,10 @@ namespace Lykke.Service.BcnReports.AzureRepositories.ReportMetadata
                 });
         }
 
-        public Task SetDone(string address, string fileUrl)
+        public Task SetDone(string id, string fileUrl)
         {
-            return _storage.ReplaceAsync(BaseReportMetadataEntity.GeneratePartitionKey(),
-                BaseReportMetadataEntity.GenerateRowKey(address),
+            return Storage.ReplaceAsync(GeneratePartitionKey(id),
+                BaseReportMetadataEntity.GenerateRowKey(id),
                 p =>
                 {
                     p.Status = ReportStatus.Done.ToString();
@@ -112,10 +108,10 @@ namespace Lykke.Service.BcnReports.AzureRepositories.ReportMetadata
                 });
         }
 
-        public Task SetError(string address, string errorDescr)
+        public Task SetError(string id, string errorDescr)
         {
-            return _storage.ReplaceAsync(BaseReportMetadataEntity.GeneratePartitionKey(),
-                BaseReportMetadataEntity.GenerateRowKey(address),
+            return Storage.ReplaceAsync(GeneratePartitionKey(id),
+                BaseReportMetadataEntity.GenerateRowKey(id),
                 p =>
                 {
                     p.Status = ReportStatus.Failed.ToString();
@@ -124,6 +120,11 @@ namespace Lykke.Service.BcnReports.AzureRepositories.ReportMetadata
 
                     return p;
                 });
+        }
+
+        public virtual string GeneratePartitionKey(string id)
+        {
+            return "BCNR";
         }
     }
 }

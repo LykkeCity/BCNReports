@@ -4,6 +4,7 @@ using Common;
 using Common.Log;
 using Lykke.JobTriggers.Triggers.Attributes;
 using Lykke.Service.BcnReports.Core.AddressTransactionReport;
+using Lykke.Service.BcnReports.Core.Console;
 using Lykke.Service.BcnReports.Core.Queue;
 using Lykke.Service.BcnReports.Core.ReportMetadata;
 using Lykke.Service.BcnReports.Core.ReportStorage;
@@ -18,19 +19,21 @@ namespace Lykke.Service.BcnReports.QueueHandlers
         private readonly ILog _log;
         private readonly IAddressTransactionsReportStorage _addressTransactionsReportStorage;
         private readonly EmailSenderClient _emailSenderProducer;
+        private readonly IConsole _console;
 
         public AddressTransactionsQueueFunctions(
             IAddressTransactionReportService addressTransactionReportService, 
             ILog log,
             EmailSenderClient emailSenderProducer,
             IAddressTransactionsReportMetadataRepository addressTransactionsReportMetadataRepository,
-            IAddressTransactionsReportStorage addressTransactionsReportStorage)
+            IAddressTransactionsReportStorage addressTransactionsReportStorage, IConsole console)
         {
             _addressTransactionReportService = addressTransactionReportService;
             _log = log;
             _emailSenderProducer = emailSenderProducer;
             _addressTransactionsReportMetadataRepository = addressTransactionsReportMetadataRepository;
             _addressTransactionsReportStorage = addressTransactionsReportStorage;
+            _console = console;
         }
 
         [QueueTrigger(QueueNames.AddressTransactionsReport, notify:true)]
@@ -38,7 +41,7 @@ namespace Lykke.Service.BcnReports.QueueHandlers
         {
             try
             {
-                await _log.WriteInfoAsync(nameof(AddressTransactionsQueueFunctions), 
+                _console.WriteConsoleLog(nameof(AddressTransactionsQueueFunctions), 
                     nameof(CreateReport),
                     command.ToJson(), "Started");
 
@@ -64,7 +67,7 @@ namespace Lykke.Service.BcnReports.QueueHandlers
 
                 await _addressTransactionsReportMetadataRepository.SetDone(command.Address, saveResult.Url);
 
-                await _log.WriteInfoAsync(nameof(AddressTransactionsQueueFunctions),
+                _console.WriteConsoleLog(nameof(AddressTransactionsQueueFunctions),
                     nameof(CreateReport),
                     command.ToJson(), "Done");
             }

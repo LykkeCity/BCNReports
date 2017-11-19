@@ -3,16 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Common;
-using LkeServices.BitcoinHelpers;
 using Lykke.Service.BcnReports.Core.NinjaClient;
 using Lykke.Service.BcnReports.Core.Queue;
 using Lykke.Service.BcnReports.Core.ReportMetadata;
 using Lykke.Service.BcnReports.Core.Settings;
 using Lykke.Service.BcnReports.Models;
-using Lykke.Service.BcnReports.Services.Settings;
 using Microsoft.AspNetCore.Mvc;
 using MoreLinq;
-using QBitNinja.Client;
 using QBitNinja.Client.Models;
 using Web.Helpers;
 
@@ -24,17 +21,20 @@ namespace Lykke.Service.BcnReports.Controllers
         private readonly IBlockReportCommandProducer _commandProducer;
         private readonly IBlockTransactionsReportMetadataRepository _reportMetadataRepository;
         private readonly INinjaClientFactory _bitNinjaClient;
+        private readonly IBlockRangeReportCommandProducer _blockRangeReportCommandProducer;
         private readonly BcnReportsSettings _bcnReportsSettings;
 
         public BlockTransactionsReportsController(IBlockReportCommandProducer commandProducer,
             IBlockTransactionsReportMetadataRepository reportMetadataRepository,
             INinjaClientFactory bitNinjaClient, 
-            BcnReportsSettings bcnReportsSettings)
+            BcnReportsSettings bcnReportsSettings,
+            IBlockRangeReportCommandProducer blockRangeReportCommandProducer)
         {
             _commandProducer = commandProducer;
             _reportMetadataRepository = reportMetadataRepository;
             _bitNinjaClient = bitNinjaClient;
             _bcnReportsSettings = bcnReportsSettings;
+            _blockRangeReportCommandProducer = blockRangeReportCommandProducer;
         }
 
 
@@ -77,20 +77,9 @@ namespace Lykke.Service.BcnReports.Controllers
         }
 
         [HttpPost("range")]
-        public async Task<CommandResult> CreateRangeReport([FromQuery]int minBlock, [FromQuery]int maxBlock, [FromQuery]int batch = 1)
+        public async Task<CommandResult> CreateRangeReport([FromQuery]int minBlock, [FromQuery]int maxBlock, [FromQuery]int batch = 100)
         {
-            var list = Enumerable.Range(minBlock, maxBlock - minBlock + 1);
-
-            foreach (var enumerable in list.Batch(batch))
-            {
-
-                await _commandProducer.CreateCommand(enumerable.Select(p => p.ToString()), null);
-                foreach (var block in enumerable)
-                {
-                    await _reportMetadataRepository.InsertOrReplace(ReportMetadata.Create(block.ToString(), queuedAt: DateTime.UtcNow));
-                }
-            }
-
+            await _blockRangeReportCommandProducer.CreateRangeReport(minBlock, maxBlock, batch);
 
             return CommandResultBuilder.Ok();
         }

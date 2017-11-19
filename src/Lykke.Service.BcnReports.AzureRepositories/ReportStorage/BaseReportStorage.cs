@@ -43,21 +43,25 @@ namespace AzureRepositories.ReportStorage
             _blobStorage = blobStorage;
         }
 
-        public async Task<ISaveResult> SaveXlsxReport(string address, Stream data)
+        public async Task<ISaveResult> SaveXlsxReport(string id, Stream data)
         {
             data.Position = 0;
 
-            var key = GetKeyName(address);
-           await _blobStorage.SaveBlobAsync(_container, key, data);
+            var key = GetKeyName(id);
             
-            var url = await Retry.Try(() => _blobStorage.SaveBlobAsync(_container, key, data), nameof(SaveXlsxReport), 5, logger:_log, secondsToWaitOnFail: 2);
+            var url = await Retry.Try(() => _blobStorage.SaveBlobAsync(GeneratePartition(id), key, data), nameof(SaveXlsxReport), 5, logger:null, secondsToWaitOnFail: 2);
 
             return SaveResult.Ok(url);
         }
 
-        private string GetKeyName(string address)
+        public virtual string GeneratePartition(string id)
         {
-            return address + ".xlsx";
+            return _container;
+        }
+
+        private string GetKeyName(string id)
+        {
+            return id + ".xlsx";
         }
     }
 }

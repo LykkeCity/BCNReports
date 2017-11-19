@@ -32,7 +32,11 @@ namespace Lykke.Service.BcnReports.Services
     {
         public static void BindCommonServices(this ContainerBuilder ioc, GeneralSettings settings, ILog log)
         {
-            ioc.Register(p=>new AssetDefinitionService(settings.BcnReports, new MemoryCacheManager())).As<IAssetDefinitionService>().SingleInstance();
+            ioc.Register(p =>
+            {
+                var context = p.Resolve<IComponentContext>();
+                return new AssetDefinitionService(settings.BcnReports, new MemoryCacheManager(), context.Resolve<IConsole>());
+            }).As<IAssetDefinitionService>().SingleInstance();
             ioc.RegisterType<AssetTransactionsesService>().As<IAssetTransactionsService>();
             ioc.RegisterType<TransactionXlsxRenderer>().As<ITransactionXlsxRenderer>();
             ioc.RegisterType<TransactionService>().As<ITransactionService>().SingleInstance();
@@ -40,7 +44,7 @@ namespace Lykke.Service.BcnReports.Services
             ioc.RegisterType<AddressService>().As<IAddressService>();
             ioc.RegisterType<AddressTransactionReportService>().As<IAddressTransactionReportService>();
             ioc.RegisterType<AssetTransactionsReportService>().As<IAssetTransactionsReportService>();
-            ioc.RegisterType<BlockTransactionsReportService>().As<IBlockTransactionsReportService>();
+            ioc.RegisterType<BlockTransactionsReportService>().As<IBlockTransactionsReportService>().SingleInstance();
             ioc.RegisterType<HealthService>().As<IHealthService>();
             ioc.RegisterType<StartupManager>().As<IStartupManager>();
             ioc.RegisterType<ShutdownManager>().As<IShutdownManager>();

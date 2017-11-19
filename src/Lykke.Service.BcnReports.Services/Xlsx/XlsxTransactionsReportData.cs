@@ -19,7 +19,7 @@ namespace Lykke.Service.BcnReports.Services.Xlsx
             public string TransactionHash { get; set; }
             public string BlockHash { get; set; }
             public DateTime? BlockDate { get; set; }
-            public int Index { get; set; }
+            public int? Index { get; set; }
             public string Address { get; set; }
             public string ColoredAddress { get; set; }
             public double BtcValue { get; set; }

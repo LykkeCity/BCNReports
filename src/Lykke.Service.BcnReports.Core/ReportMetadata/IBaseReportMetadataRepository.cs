@@ -70,5 +70,6 @@ namespace Lykke.Service.BcnReports.Core.ReportMetadata
         Task SetProcessing(string id);
         Task SetDone(string id, string fileUrl);
         Task SetError(string id, string errorDescr);
+        string GeneratePartitionKey(string id);
     }
 }

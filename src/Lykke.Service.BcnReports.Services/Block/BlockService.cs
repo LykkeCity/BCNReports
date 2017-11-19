@@ -36,13 +36,14 @@ namespace Lykke.Service.BcnReports.Services.Block
         {
             try
             {
-                await _globalSemaphore.WaitAsync();
-                _console.WriteLine($"{nameof(BlockService)}.{nameof(GetBlock)} started {id}");
+                if (!headerOnly)
+                {
+                    await _globalSemaphore.WaitAsync();
+                }
 
                 return await Retry.Try(() => _bitNinjaClient.GetClient().GetBlock(id, headerOnly).WithTimeout(60*1000),
                     component:nameof(GetBlock),
                     tryCount: 10,
-                    logger: _log,
                     secondsToWaitOnFail: 5);
             }
             catch (Exception e)

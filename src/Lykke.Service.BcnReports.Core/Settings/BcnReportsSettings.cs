@@ -13,7 +13,7 @@ namespace Lykke.Service.BcnReports.Core.Settings
 
 
         public string Network { get; set; }
-
+        public string BlockTransactionsServiceUrl { get; set; }
 
         public string BlockChainExplolerUrl { get; set; }
 

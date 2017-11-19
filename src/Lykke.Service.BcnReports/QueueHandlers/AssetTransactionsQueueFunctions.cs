@@ -4,6 +4,7 @@ using Common;
 using Common.Log;
 using Lykke.JobTriggers.Triggers.Attributes;
 using Lykke.Service.BcnReports.Core.AssetTransactionReport;
+using Lykke.Service.BcnReports.Core.Console;
 using Lykke.Service.BcnReports.Core.Queue;
 using Lykke.Service.BcnReports.Core.ReportMetadata;
 using Lykke.Service.BcnReports.Core.ReportStorage;
@@ -18,18 +19,21 @@ namespace Lykke.Service.BcnReports.QueueHandlers
         private readonly ILog _log;
         private readonly IAssetTransactionsReportStorage _reportStorage;
         private readonly EmailSenderClient _emailSenderProducer;
+        private readonly IConsole _console;
 
         public AssetTransactionsQueueFunctions(EmailSenderClient emailSenderProducer, 
             IAssetTransactionsReportService reportService, 
             IAssetTransactionsReportMetadataRepository metadataRepository, 
             ILog log, 
-            IAssetTransactionsReportStorage reportStorage)
+            IAssetTransactionsReportStorage reportStorage, 
+            IConsole console)
         {
             _emailSenderProducer = emailSenderProducer;
             _reportService = reportService;
             _metadataRepository = metadataRepository;
             _log = log;
             _reportStorage = reportStorage;
+            _console = console;
         }
 
         [QueueTrigger(QueueNames.AssetTransactionsReport, notify:true)]
@@ -37,7 +41,7 @@ namespace Lykke.Service.BcnReports.QueueHandlers
         {
             try
             {
-                await _log.WriteInfoAsync(nameof(AssetTransactionsQueueFunctions),
+                _console.WriteConsoleLog(nameof(AssetTransactionsQueueFunctions),
                     nameof(CreateReport),
                     command.ToJson(), "Started");
 
@@ -62,7 +66,7 @@ namespace Lykke.Service.BcnReports.QueueHandlers
 
                 await _metadataRepository.SetDone(command.AssetId, saveResult.Url);
 
-                await _log.WriteInfoAsync(nameof(AssetTransactionsQueueFunctions),
+                _console.WriteConsoleLog(nameof(AssetTransactionsQueueFunctions),
                     nameof(CreateReport),
                     command.ToJson(), "Done");
             }

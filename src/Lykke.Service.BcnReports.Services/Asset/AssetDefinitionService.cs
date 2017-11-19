@@ -4,9 +4,11 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Common.Cache;
+using Common.Log;
 using Flurl;
 using Flurl.Http;
 using Lykke.Service.BcnReports.Core.Asset;
+using Lykke.Service.BcnReports.Core.Console;
 using Lykke.Service.BcnReports.Core.Settings;
 
 namespace LkeServices.Asset
@@ -89,41 +91,38 @@ namespace LkeServices.Asset
         private readonly BcnReportsSettings _bcnReportsSettings;
         private readonly ICacheManager _cacheManager;
         private const string CacheKey = "asset-def";
+        private readonly IConsole _console;
 
         private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1);
 
-        public AssetDefinitionService(BcnReportsSettings bcnReportsSettings, ICacheManager cacheManager)
+        public AssetDefinitionService(BcnReportsSettings bcnReportsSettings, 
+            ICacheManager cacheManager,
+            IConsole console)
         {
             _bcnReportsSettings = bcnReportsSettings;
             _cacheManager = cacheManager;
+            _console = console;
         }
 
         private async Task<IDictionary<string, IAssetDefinition>> RetrieveFromRpc()
         {
-            try
+            _console.WriteConsoleLog(nameof(AssetDefinitionService), nameof(RetrieveFromRpc), "Started");
+
+            var resp = await _bcnReportsSettings.BlockChainExplolerUrl.AppendPathSegment("/api/assets").GetJsonAsync<List<AssetDefinitionContract>>();
+
+            var result = new Dictionary<string, IAssetDefinition>();
+            foreach (var assetContract in resp)
             {
-                await _semaphore.WaitAsync(TimeSpan.FromMinutes(3));
-
-                var resp = await _bcnReportsSettings.BlockChainExplolerUrl.AppendPathSegment("/api/assets").GetJsonAsync<List<AssetDefinitionContract>>();
-
-                var result = new Dictionary<string, IAssetDefinition>();
-                foreach (var assetContract in resp)
+                var assetResultModel = AssetDefition.Create(assetContract);
+                foreach (var assetId in assetContract.AssetIds)
                 {
-                    var assetResultModel = AssetDefition.Create(assetContract);
-                    foreach (var assetId in assetContract.AssetIds)
-                    {
-                        result[assetId] = assetResultModel;
-                    }
+                    result[assetId] = assetResultModel;
                 }
-
-                return result;
-
-            }
-            finally
-            {
-                _semaphore.Release(1);
             }
 
+            _console.WriteConsoleLog(nameof(AssetDefinitionService), nameof(RetrieveFromRpc), "Done");
+
+            return result;
         }
 
         private IDictionary<string, IAssetDefinition> GetFromCache()
@@ -143,15 +142,23 @@ namespace LkeServices.Asset
 
         public async Task<IDictionary<string, IAssetDefinition>> GetAssetDefinitionsAsync()
         {
-            var result = GetFromCache();
-
-            if (result == null)
+            try
             {
-                result = await RetrieveFromRpc();
-                SetCache(result);
-            }
+                await _semaphore.WaitAsync();
+                var result = GetFromCache();
 
-            return result;
+                if (result == null)
+                {
+                    result = await RetrieveFromRpc();
+                    SetCache(result);
+                }
+
+                return result;
+            }
+            finally
+            {
+                _semaphore.Release(1);
+            }
         }
     }
 }

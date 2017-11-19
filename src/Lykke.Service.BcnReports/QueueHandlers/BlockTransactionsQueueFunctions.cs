@@ -6,6 +6,7 @@ using Common.Log;
 using Lykke.JobTriggers.Triggers.Attributes;
 using Lykke.Service.BcnReports.AzureRepositories.Helpers;
 using Lykke.Service.BcnReports.Core.BlockTransactionsReport;
+using Lykke.Service.BcnReports.Core.Console;
 using Lykke.Service.BcnReports.Core.Queue;
 using Lykke.Service.BcnReports.Core.ReportMetadata;
 using Lykke.Service.BcnReports.Core.ReportStorage;
@@ -20,18 +21,21 @@ namespace Lykke.Service.BcnReports.QueueHandlers
         private readonly ILog _log;
         private readonly IBlockTransactionsReportStorage _reportStorage;
         private readonly EmailSenderClient _emailSenderProducer;
+        private readonly IConsole _console;
 
         public BlockTransactionsQueueFunctions(EmailSenderClient emailSenderProducer,
             IBlockTransactionsReportService reportService, 
             IBlockTransactionsReportMetadataRepository metadataRepository, 
             ILog log,
-            IBlockTransactionsReportStorage reportStorage)
+            IBlockTransactionsReportStorage reportStorage, 
+            IConsole console)
         {
             _emailSenderProducer = emailSenderProducer;
             _reportService = reportService;
             _metadataRepository = metadataRepository;
             _log = log;
             _reportStorage = reportStorage;
+            _console = console;
         }
 
         [QueueTrigger(QueueNames.BlockTransactionsReport, notify:true)]
@@ -39,7 +43,7 @@ namespace Lykke.Service.BcnReports.QueueHandlers
         {
             try
             {
-                await _log.WriteInfoAsync(nameof(BlockTransactionsQueueFunctions),
+                _console.WriteConsoleLog(nameof(BlockTransactionsQueueFunctions),
                     nameof(CreateReport),
                     command.ToJson(), "Started");
                 
@@ -61,7 +65,7 @@ namespace Lykke.Service.BcnReports.QueueHandlers
                     await _emailSenderProducer.SendAsync(emailMes, new EmailAddressee{DisplayName = command.Email, EmailAddress = command.Email});
                 }
 
-                await _log.WriteInfoAsync(nameof(BlockTransactionsQueueFunctions),
+                _console.WriteConsoleLog(nameof(BlockTransactionsQueueFunctions),
                     nameof(CreateReport),
                     command.ToJson(), "Done");
             }
@@ -78,7 +82,7 @@ namespace Lykke.Service.BcnReports.QueueHandlers
         {
             try
             {
-                await _log.WriteInfoAsync(nameof(SaveReport),
+                _console.WriteConsoleLog(nameof(SaveReport),
                     nameof(SaveReport),
                     block, "Started");
 
@@ -89,17 +93,18 @@ namespace Lykke.Service.BcnReports.QueueHandlers
                 if (meta?.FileUrl != null)
                 {
                     await _metadataRepository.SetDone(block, meta.FileUrl);
+
                     return (block, meta.FileUrl);
                 }
-                var reportData = await _reportService.GetTransactionsReport(block);
 
+                var reportData = await _reportService.GetTransactionsReport(block);
 
                 var saveResult = await _reportStorage.SaveXlsxReport(block, reportData);
 
 
                 await _metadataRepository.SetDone(block, saveResult.Url);
 
-                await _log.WriteInfoAsync(nameof(BlockTransactionsQueueFunctions),
+                _console.WriteConsoleLog(nameof(BlockTransactionsQueueFunctions),
                     nameof(SaveReport),
                     block, "Done");
 
