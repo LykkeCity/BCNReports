@@ -23,6 +23,10 @@ namespace Lykke.Service.BcnReports.Core.Settings
         [Optional]
         public int NinjaBlocksMaxConcurrentRequestCount { get; set; } = 10;
 
+
+        [Optional]
+        public int BlockServiceMaxConcurrentRequestCount { get; set; } = 5;
+
         [Optional]
         public int TimeoutMinutesOnGettingNinjaTransactionsList { get; set; } = 5;
 

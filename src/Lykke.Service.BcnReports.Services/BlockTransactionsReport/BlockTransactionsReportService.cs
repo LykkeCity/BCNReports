@@ -147,7 +147,7 @@ namespace Lykke.Service.BcnReports.Services.BlockTransactionsReport
         private readonly BcnReportsSettings _bcnReportsSettings;
         private readonly ILog _log;
         private readonly IConsole _console;
-        private readonly SemaphoreSlim _blocktransactionApiSemapthore = new SemaphoreSlim(10);
+        private readonly SemaphoreSlim _blocktransactionApiSemapthore;
 
         public BlockTransactionsReportService(
             IAssetDefinitionService assetDefinitionService, 
@@ -165,6 +165,8 @@ namespace Lykke.Service.BcnReports.Services.BlockTransactionsReport
             _bcnReportsSettings = bcnReportsSettings;
             _log = log;
             _console = console;
+
+            _blocktransactionApiSemapthore = new SemaphoreSlim(bcnReportsSettings.BlockServiceMaxConcurrentRequestCount);
         }
 
         public async Task<Stream> GetTransactionsReport(string blockId)
